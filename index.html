@@ -10,7 +10,7 @@
     <style>
       body {
             font-family: 'Raleway', sans-serif;
-            background: linear-gradient(135deg, #4a90e2, #9013fe, #b8e986, #f8e71c);
+            background: linear-gradient(200deg, #4a90e2, #9013fe, #b8e986, #f8e71c, #e2614a, #fe5d13, #86e6e9, #f81c53);
             background-size: 400% 400%;
             animation: gradientBackground 15s ease infinite;
             color: #333;
@@ -96,7 +96,7 @@
             text-align: center;
             position: relative;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0);
             border-radius: 20px;
             box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
@@ -121,12 +121,13 @@
             margin: 20px auto;
             justify-content: center;
             position: relative;
+
         }
 
         .cell {
             width: 70px;
             height: 70px;
-            background: linear-gradient(135deg, #ffffff, #dfe9f3);
+            background: linear-gradient(135deg, #ffffff31, #dfe9f3);
             border: 2px solid rgba(255, 255, 255, 0.5);
             border-radius: 10px;
             font-size: 36px;
@@ -166,7 +167,7 @@
             padding: 10px;
             cursor: pointer;
             border: none;
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            background: linear-gradient(135deg, #ff9a9d00, #fad0c400);
             font-size: 20px;
             transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
             border-radius: 50%;
@@ -440,419 +441,420 @@
     <button id="start-game-button">Start Game</button>
 
     <script>
-        const boardElement = document.getElementById('board');
-        const emojiButton = document.getElementById('emoji-button');
-        const settingsButton = document.getElementById('settings-button');
-        const difficultyButton = document.getElementById('difficulty-button');
-        const settingsModal = document.getElementById('settings');
-        const difficultyModal = document.getElementById('difficulty');
-        const emojiSelectionModal = document.getElementById('emoji-selection');
-        const loadingScreen = document.getElementById('loading-screen');
-        const notification = document.getElementById('notification');
-        const leaveButton = document.getElementById('leave-button');
-        const gameContainer = document.getElementById('game-container');
-        const startGameButton = document.getElementById('start-game-button');
-        const gameStartButton = document.getElementById('game-start-button');
-        const twoPlayerButton = document.getElementById('two-player-button');
-        const scoreboardSingle = document.getElementById('scoreboard-single');
-        const scoreboardTwoPlayer = document.getElementById('scoreboard-two-player');
-        const scoreboardEasy = document.getElementById('scoreboard-easy');
-        const scoreboardNormal = document.getElementById('scoreboard-normal');
-        const scoreboardHard = document.getElementById('scoreboard-hard');
-        const playerScoreElement = document.getElementById('player-score');
-        const computerScoreElement = document.getElementById('computer-score');
-        const player1ScoreElement = document.getElementById('player1-score');
-        const player2ScoreElement = document.getElementById('player2-score');
+   const boardElement = document.getElementById('board');
+const emojiButton = document.getElementById('emoji-button');
+const settingsButton = document.getElementById('settings-button');
+const difficultyButton = document.getElementById('difficulty-button');
+const settingsModal = document.getElementById('settings');
+const difficultyModal = document.getElementById('difficulty');
+const emojiSelectionModal = document.getElementById('emoji-selection');
+const loadingScreen = document.getElementById('loading-screen');
+const notification = document.getElementById('notification');
+const leaveButton = document.getElementById('leave-button');
+const gameContainer = document.getElementById('game-container');
+const startGameButton = document.getElementById('start-game-button');
+const gameStartButton = document.getElementById('game-start-button');
+const twoPlayerButton = document.getElementById('two-player-button');
+const scoreboardSingle = document.getElementById('scoreboard-single');
+const scoreboardTwoPlayer = document.getElementById('scoreboard-two-player');
+const scoreboardEasy = document.getElementById('scoreboard-easy');
+const scoreboardNormal = document.getElementById('scoreboard-normal');
+const scoreboardHard = document.getElementById('scoreboard-hard');
+const playerScoreElement = document.getElementById('player-score');
+const computerScoreElement = document.getElementById('computer-score');
+const player1ScoreElement = document.getElementById('player1-score');
+const player2ScoreElement = document.getElementById('player2-score');
 
-        let boardSize = 3;
-        let boardState = [];
-        let currentPlayer = 'Player';
-        let playerDesign = 'x x-fire'; // Default design if no selection is made
-        let computerDesign = 'o'; // Computer plays as O
-        let difficulty = 'easy';
-        let isTwoPlayerMode = false;
-        let playerScore = 0;
-        let computerScore = 0;
-        let player1Score = 0;
-        let player2Score = 0;
-        let easyPlayerScore = 0;
-        let easyComputerScore = 0;
-        let normalPlayerScore = 0;
-        let normalComputerScore = 0;
-        let hardPlayerScore = 0;
-        let hardComputerScore = 0;
+let boardSize = 3;
+let boardState = [];
+let currentPlayer = 'Player';
+let playerDesign = 'x x-fire'; // Default design if no selection is made
+let computerDesign = 'o'; // Computer plays as O
+let difficulty = 'easy';
+let isTwoPlayerMode = false;
+let playerScore = 0;
+let computerScore = 0;
+let player1Score = 0;
+let player2Score = 0;
+let easyPlayerScore = 0;
+let easyComputerScore = 0;
+let normalPlayerScore = 0;
+let normalComputerScore = 0;
+let hardPlayerScore = 0;
+let hardComputerScore = 0;
 
-        function initBoard() {
-            boardElement.innerHTML = '';
-            boardElement.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
-            boardElement.style.gridTemplateRows = `repeat(${boardSize}, 1fr)`;
-            boardState = Array(boardSize * boardSize).fill('');
+function initBoard() {
+    boardElement.innerHTML = '';
+    boardElement.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
+    boardElement.style.gridTemplateRows = `repeat(${boardSize}, 1fr)`;
+    boardState = Array(boardSize * boardSize).fill('');
 
-            boardState.forEach((_, index) => {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.style.width = boardSize === 5 ? '50px' : '70px';
-                cell.style.height = boardSize === 5 ? '50px' : '70px';
-                cell.dataset.index = index;
+    boardState.forEach((_, index) => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.style.width = boardSize === 5 ? '50px' : '70px';
+        cell.style.height = boardSize === 5 ? '50px' : '70px';
+        cell.dataset.index = index;
 
-                // Attach the appropriate event listener based on the game mode
-                if (!isTwoPlayerMode) {
-                    cell.addEventListener('click', () => handleCellClick(index));
-                } else {
-                    cell.addEventListener('click', () => handleTwoPlayerClick(index));
-                }
-
-                boardElement.appendChild(cell);
-            });
+        // Attach the appropriate event listener based on the game mode
+        if (!isTwoPlayerMode) {
+            cell.addEventListener('click', () => handleCellClick(index));
+        } else {
+            cell.addEventListener('click', () => handleTwoPlayerClick(index));
         }
 
-        function handleCellClick(index) {
-            if (!boardState[index] && currentPlayer === 'Player') {
-                boardState[index] = playerDesign;
-                renderBoard();
-                if (checkWin(playerDesign)) {
-                    updateScore('single'); // Ensure score updates for single-player mode
-                    showNotification('You Win!');
-                    setTimeout(() => resetGame(true), 2000);
-                } else if (!boardState.includes('')) {
-                    // Draw condition check
-                    console.log("Draw detected, board state:", boardState);
-                    showNotification("It's a Tie!");
-                    setTimeout(() => resetGame(true), 2000); // Reset after draw
-                } else {
-                    currentPlayer = 'Computer';
-                    setTimeout(computerMove, 500);
-                }
+        boardElement.appendChild(cell);
+    });
+}
+
+function handleCellClick(index) {
+    if (!boardState[index] && currentPlayer === 'Player') {
+        boardState[index] = playerDesign;
+        renderBoard();
+        if (checkWin(playerDesign)) {
+            updateScore('single'); // Ensure score updates for single-player mode
+            showNotification('You Win!');
+            setTimeout(() => resetGame(true), 2000);
+        } else if (!boardState.includes('')) {
+            showNotification("It's a Tie!");
+            setTimeout(() => resetGame(true), 2000); // Reset after draw
+        } else {
+            currentPlayer = 'Computer';
+            setTimeout(computerMove, 500);
+        }
+    }
+}
+
+function handleTwoPlayerClick(index) {
+    if (!boardState[index]) {
+        boardState[index] = currentPlayer === 'Player 1' ? playerDesign : computerDesign;
+        renderBoard();
+        if (checkWin(boardState[index])) {
+            updateScore('two-player');
+            showNotification(`${currentPlayer} Wins!`);
+            setTimeout(() => resetGame(true), 2000);
+        } else if (!boardState.includes('')) {
+            showNotification("It's a Tie!");
+            setTimeout(() => resetGame(true), 2000); // Reset after draw
+        } else {
+            currentPlayer = currentPlayer === 'Player 1' ? 'Player 2' : 'Player 1';
+        }
+    }
+}
+
+function computerMove() {
+    let move;
+    switch (difficulty) {
+        case 'easy':
+            move = Math.random() < 0.75 ? getPerfectMove() : getBestMove(); // 75% chance to make the best move
+            break;
+        case 'normal':
+            move = Math.random() < 0.80 ? getPerfectMove() : getBestMove(); // 80% chance to make the best move
+            break;
+        case 'hard':
+            move = getPerfectMove(); // Always makes the perfect move
+            break;
+        default:
+            move = getBestMove();
+            break;
+    }
+
+    boardState[move] = computerDesign;
+    renderBoard();
+    if (checkWin(computerDesign)) {
+        updateScore('computer');
+        showNotification('Computer Wins!');
+        setTimeout(() => resetGame(true), 2000);
+    } else if (!boardState.includes('')) {
+        showNotification("It's a Tie!");
+        setTimeout(() => resetGame(true), 2000); // Reset after draw
+    } else {
+        currentPlayer = 'Player';
+    }
+}
+
+function getPerfectMove() {
+    let bestScore = -Infinity;
+    let move;
+    let depthLimit = boardSize === 3 ? 4 : boardSize === 4 ? 3 : 2;
+    boardState.forEach((cell, index) => {
+        if (!cell) {
+            boardState[index] = computerDesign;
+            let score = minimax(boardState, 0, false, depthLimit, -Infinity, Infinity);
+            boardState[index] = '';
+            if (score > bestScore) {
+                bestScore = score;
+                move = index;
             }
         }
+    });
+    return move;
+}
 
-        function handleTwoPlayerClick(index) {
-            if (!boardState[index]) {
-                boardState[index] = currentPlayer === 'Player 1' ? playerDesign : computerDesign;
-                renderBoard();
-                if (checkWin(boardState[index])) {
-                    updateScore('two-player');
-                    showNotification(`${currentPlayer} Wins!`);
-                    setTimeout(() => resetGame(true), 2000);
-                } else if (!boardState.includes('')) {
-                    // Draw condition check
-                    console.log("Draw detected, board state:", boardState);
-                    showNotification("It's a Tie!");
-                    setTimeout(() => resetGame(true), 2000); // Reset after draw
-                } else {
-                    currentPlayer = currentPlayer === 'Player 1' ? 'Player 2' : 'Player 1';
-                }
+function minimax(board, depth, isMaximizing, maxDepth, alpha, beta) {
+    if (checkWin(computerDesign)) return 10 - depth;
+    if (checkWin(playerDesign)) return depth - 10;
+    if (board.every(cell => cell) || depth === maxDepth) return 0;
+
+    if (isMaximizing) {
+        let maxEval = -Infinity;
+        board.forEach((cell, index) => {
+            if (!cell) {
+                board[index] = computerDesign;
+                let eval = minimax(board, depth + 1, false, maxDepth, alpha, beta);
+                board[index] = '';
+                maxEval = Math.max(maxEval, eval);
+                alpha = Math.max(alpha, eval);
+                if (beta <= alpha) return;
             }
-        }
-
-        function computerMove() {
-            let move = difficulty === 'hard' ? getPerfectMove() : getBestMove();
-            boardState[move] = computerDesign;
-            renderBoard();
-            if (checkWin(computerDesign)) {
-                updateScore('computer');
-                showNotification('Computer Wins!');
-                setTimeout(() => resetGame(true), 2000);
-            } else if (!boardState.includes('')) {
-                // Draw condition check for computer mode
-                console.log("Draw detected, board state:", boardState);
-                showNotification("It's a Tie!");
-                setTimeout(() => resetGame(true), 2000); // Reset after draw
-            } else {
-                currentPlayer = 'Player';
-            }
-        }
-
-        function getPerfectMove() {
-            let bestScore = -Infinity;
-            let move;
-            let depthLimit = boardSize === 3 ? 4 : boardSize === 4 ? 3 : 2;
-            boardState.forEach((cell, index) => {
-                if (!cell) {
-                    boardState[index] = computerDesign;
-                    let score = minimax(boardState, 0, false, depthLimit, -Infinity, Infinity);
-                    boardState[index] = '';
-                    if (score > bestScore) {
-                        bestScore = score;
-                        move = index;
-                    }
-                }
-            });
-            return move;
-        }
-
-        function minimax(board, depth, isMaximizing, maxDepth, alpha, beta) {
-            if (checkWin(computerDesign)) return 10 - depth;
-            if (checkWin(playerDesign)) return depth - 10;
-            if (board.every(cell => cell) || depth === maxDepth) return 0;
-
-            if (isMaximizing) {
-                let maxEval = -Infinity;
-                board.forEach((cell, index) => {
-                    if (!cell) {
-                        board[index] = computerDesign;
-                        let eval = minimax(board, depth + 1, false, maxDepth, alpha, beta);
-                        board[index] = '';
-                        maxEval = Math.max(maxEval, eval);
-                        alpha = Math.max(alpha, eval);
-                        if (beta <= alpha) return;
-                    }
-                });
-                return maxEval;
-            } else {
-                let minEval = Infinity;
-                board.forEach((cell, index) => {
-                    if (!cell) {
-                        board[index] = playerDesign;
-                        let eval = minimax(board, depth + 1, true, maxDepth, alpha, beta);
-                        board[index] = '';
-                        minEval = Math.min(minEval, eval);
-                        beta = Math.min(beta, eval);
-                        if (beta <= alpha) return;
-                    }
-                });
-                return minEval;
-            }
-        }
-
-        function getBestMove() {
-            const emptyCells = boardState.map((val, index) => val === '' ? index : null).filter(val => val !== null);
-            return emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        }
-
-        function checkWin(design) {
-            const winPatterns = [
-                ...Array(boardSize).fill(0).map((_, row) => Array.from({ length: boardSize }, (_, col) => row * boardSize + col)),
-                ...Array(boardSize).fill(0).map((_, col) => Array.from({ length: boardSize }, (_, row) => row * boardSize + col)),
-                Array.from({ length: boardSize }, (_, i) => i * (boardSize + 1)),
-                Array.from({ length: boardSize }, (_, i) => (i + 1) * (boardSize - 1))
-            ];
-            return winPatterns.some(pattern => pattern.every(index => boardState[index] === design));
-        }
-
-        function resetGame(autoReset = false) {
-            boardState = Array(boardSize * boardSize).fill('');
-            currentPlayer = isTwoPlayerMode ? 'Player 1' : 'Player';
-            renderBoard();
-        }
-
-        function renderBoard() {
-            boardElement.querySelectorAll('.cell').forEach((cell, index) => {
-                cell.className = 'cell'; // Reset classes
-                if (boardState[index] === 'x x-fire' || boardState[index] === playerDesign) {
-                    cell.textContent = 'X';
-                    const designClass = playerDesign.split(' ')[1]; // Extract the design class part
-                    if (designClass) {
-                        cell.classList.add(designClass); // Apply the selected X design class
-                    }
-                } else if (boardState[index] === 'o') {
-                    cell.textContent = 'O';
-                    cell.style.color = '#4fc3f7';
-                    cell.style.fontWeight = 'bold';
-                } else {
-                    cell.textContent = '';
-                }
-            });
-        }
-
-        function selectDesign(design) {
-            playerDesign = `x ${design}`; // Update the playerDesign with the selected design
-            closeEmojiSelection();
-            renderBoard(); // Re-render the board to ensure the correct design is applied immediately
-        }
-
-        function updateScore(mode) {
-            if (mode === 'single') {
-                playerScore++;
-                playerScoreElement.textContent = playerScore;
-            } else if (mode === 'two-player') {
-                if (currentPlayer === 'Player 1') {
-                    player1Score++;
-                    player1ScoreElement.textContent = player1Score;
-                } else {
-                    player2Score++;
-                    player2ScoreElement.textContent = player2Score;
-                }
-            } else if (mode === 'computer') {
-                if (difficulty === 'easy') {
-                    easyComputerScore++;
-                    document.getElementById('easy-computer-score').textContent = easyComputerScore;
-                } else if (difficulty === 'normal') {
-                    normalComputerScore++;
-                    document.getElementById('normal-computer-score').textContent = normalComputerScore;
-                } else if (difficulty === 'hard') {
-                    hardComputerScore++;
-                    document.getElementById('hard-computer-score').textContent = hardComputerScore;
-                }
-            }
-        }
-
-        function setDifficulty(level) {
-            difficulty = level;
-            closeDifficulty();
-        }
-
-        function showNotification(message, shouldReset = true) {
-            notification.textContent = message;
-            notification.style.display = 'block';
-            leaveButton.style.display = 'none'; // Hide leave button during notification
-
-            // Only reset the game if shouldReset is true
-            if (shouldReset) {
-                const resetTimeout = setTimeout(() => {
-                    notification.style.display = 'none';
-                    resetGame(true); // Reset the game
-                    leaveButton.style.display = 'inline-block'; // Show the leave button again
-                }, 2000);
-                window.currentResetTimeout = resetTimeout;
-            } else {
-                // Hide the notification without resetting
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 2000);
-            }
-        }
-
-        function closeSettings() {
-            settingsModal.style.display = 'none';
-        }
-
-        function closeDifficulty() {
-            difficultyModal.style.display = 'none';
-        }
-
-        function closeEmojiSelection() {
-            emojiSelectionModal.style.display = 'none';
-        }
-
-        leaveButton.addEventListener('click', () => {
-            isTwoPlayerMode = false;
-            gameContainer.style.display = 'block';
-            boardElement.style.display = 'none';
-
-            // Clear the reset timeout if leaving early
-            if (window.currentResetTimeout) {
-                clearTimeout(window.currentResetTimeout);
-                window.currentResetTimeout = null; // Clear reference
-            }
-
-            resetScores();
-            hideAllScoreboards();
-            showButtons();
         });
-
-        function setBoardSize(size) {
-            boardSize = size;
-            closeSettings();
-        }
-
-        function showLoadingScreen() {
-            loadingScreen.style.display = 'flex';
-            setTimeout(() => loadingScreen.style.display = 'none', 2000);
-        }
-
-        function showButtons() {
-            document.querySelectorAll('.btn').forEach(button => button.style.display = 'inline-block');
-            leaveButton.style.display = 'none';
-        }
-
-        startGameButton.addEventListener('click', () => {
-            gameContainer.style.display = 'block';
-            startGameButton.style.display = 'none';
-        });
-
-        gameStartButton.addEventListener('click', () => {
-            hideButtonsExcept(['leave-button']);
-            boardElement.style.display = 'grid';
-            showScoreboard('single');
-            initBoard();
-        });
-
-        twoPlayerButton.addEventListener('click', () => {
-            hideButtonsExcept(['leave-button']);
-            isTwoPlayerMode = true;
-            currentPlayer = 'Player 1';
-            boardElement.style.display = 'grid';
-            showScoreboard('two-player');
-            initBoard();
-        });
-
-        emojiButton.addEventListener('click', () => emojiSelectionModal.style.display = 'block');
-        settingsButton.addEventListener('click', () => settingsModal.style.display = 'block');
-        difficultyButton.addEventListener('click', () => difficultyModal.style.display = 'block');
-
-        leaveButton.addEventListener('click', () => {
-            isTwoPlayerMode = false;
-            gameContainer.style.display = 'block';
-            boardElement.style.display = 'none';
-            resetScores();
-            hideAllScoreboards(); // Ensure scoreboards are hidden on exit
-            showButtons();
-        });
-
-        function hideButtonsExcept(ids) {
-            document.querySelectorAll('.btn').forEach(button => {
-                button.style.display = ids.includes(button.id) ? 'inline-block' : 'none';
-            });
-        }
-
-        function showScoreboard(mode) {
-            hideAllScoreboards(); // Hide all scoreboards initially
-            // Only show the relevant scoreboard if the game board is visible
-            if (boardElement.style.display === 'grid') {
-                switch (mode) {
-                    case 'single':
-                        scoreboardSingle.style.display = 'block';
-                        break;
-                    case 'two-player':
-                        scoreboardTwoPlayer.style.display = 'block';
-                        break;
-                    case 'easy':
-                        scoreboardEasy.style.display = 'block';
-                        break;
-                    case 'normal':
-                        scoreboardNormal.style.display = 'block';
-                        break;
-                    case 'hard':
-                        scoreboardHard.style.display = 'block';
-                        break;
-                }
+        return maxEval;
+    } else {
+        let minEval = Infinity;
+        board.forEach((cell, index) => {
+            if (!cell) {
+                board[index] = playerDesign;
+                let eval = minimax(board, depth + 1, true, maxDepth, alpha, beta);
+                board[index] = '';
+                minEval = Math.min(minEval, eval);
+                beta = Math.min(beta, eval);
+                if (beta <= alpha) return;
             }
-        }
+        });
+        return minEval;
+    }
+}
 
-        function hideAllScoreboards() {
-            scoreboardSingle.style.display = 'none';
-            scoreboardTwoPlayer.style.display = 'none';
-            scoreboardEasy.style.display = 'none';
-            scoreboardNormal.style.display = 'none';
-            scoreboardHard.style.display = 'none';
-        }
+function getBestMove() {
+    const emptyCells = boardState.map((val, index) => val === '' ? index : null).filter(val => val !== null);
+    return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+}
 
-        function resetScores() {
-            playerScore = 0;
-            computerScore = 0;
-            player1Score = 0;
-            player2Score = 0;
-            easyPlayerScore = 0;
-            easyComputerScore = 0;
-            normalPlayerScore = 0;
-            normalComputerScore = 0;
-            hardPlayerScore = 0;
-            hardComputerScore = 0;
-            playerScoreElement.textContent = 0;
-            computerScoreElement.textContent = 0;
-            player1ScoreElement.textContent = 0;
-            player2ScoreElement.textContent = 0;
-            document.getElementById('easy-computer-score').textContent = 0;
-            document.getElementById('easy-player-score').textContent = 0;
-            document.getElementById('normal-computer-score').textContent = 0;
-            document.getElementById('normal-player-score').textContent = 0;
-            document.getElementById('hard-computer-score').textContent = 0;
-            document.getElementById('hard-player-score').textContent = 0;
-        }
+function checkWin(design) {
+    const winPatterns = [
+        ...Array(boardSize).fill(0).map((_, row) => Array.from({ length: boardSize }, (_, col) => row * boardSize + col)),
+        ...Array(boardSize).fill(0).map((_, col) => Array.from({ length: boardSize }, (_, row) => row * boardSize + col)),
+        Array.from({ length: boardSize }, (_, i) => i * (boardSize + 1)),
+        Array.from({ length: boardSize }, (_, i) => (i + 1) * (boardSize - 1))
+    ];
+    return winPatterns.some(pattern => pattern.every(index => boardState[index] === design));
+}
 
-        showLoadingScreen();
-        initBoard();
+function resetGame(autoReset = false) {
+    boardState = Array(boardSize * boardSize).fill('');
+    currentPlayer = isTwoPlayerMode ? 'Player 1' : 'Player';
+    renderBoard();
+}
+
+function renderBoard() {
+    boardElement.querySelectorAll('.cell').forEach((cell, index) => {
+        cell.className = 'cell'; // Reset classes
+        if (boardState[index] === playerDesign) {
+            cell.textContent = 'X';
+            const designClass = playerDesign.split(' ')[1]; // Extract the design class part
+            if (designClass) {
+                cell.classList.add(designClass); // Apply the selected X design class
+            }
+        } else if (boardState[index] === computerDesign) {
+            cell.textContent = 'O';
+            cell.style.color = '#4fc3f7';
+            cell.style.fontWeight = 'bold';
+        } else {
+            cell.textContent = '';
+        }
+    });
+}
+
+function selectDesign(design) {
+    playerDesign = `x ${design}`; // Update the playerDesign with the selected design
+    closeEmojiSelection();
+    renderBoard(); // Re-render the board to ensure the correct design is applied immediately
+}
+
+function updateScore(mode) {
+    if (mode === 'single') {
+        playerScore++;
+        playerScoreElement.textContent = playerScore;
+    } else if (mode === 'two-player') {
+        if (currentPlayer === 'Player 1') {
+            player1Score++;
+            player1ScoreElement.textContent = player1Score;
+        } else {
+            player2Score++;
+            player2ScoreElement.textContent = player2Score;
+        }
+    } else if (mode === 'computer') {
+        if (difficulty === 'easy') {
+            easyComputerScore++;
+            document.getElementById('easy-computer-score').textContent = easyComputerScore;
+        } else if (difficulty === 'normal') {
+            normalComputerScore++;
+            document.getElementById('normal-computer-score').textContent = normalComputerScore;
+        } else if (difficulty === 'hard') {
+            hardComputerScore++;
+            document.getElementById('hard-computer-score').textContent = hardComputerScore;
+        }
+    }
+}
+
+function setDifficulty(level) {
+    difficulty = level;
+    closeDifficulty();
+}
+
+function showNotification(message, shouldReset = true) {
+    notification.textContent = message;
+    notification.style.display = 'block';
+    leaveButton.style.display = 'none'; // Hide leave button during notification
+
+    // Only reset the game if shouldReset is true
+    if (shouldReset) {
+        const resetTimeout = setTimeout(() => {
+            notification.style.display = 'none';
+            resetGame(true); // Reset the game
+            leaveButton.style.display = 'inline-block'; // Show the leave button again
+        }, 2000);
+        window.currentResetTimeout = resetTimeout;
+    } else {
+        // Hide the notification without resetting
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 2000);
+    }
+}
+
+function closeSettings() {
+    settingsModal.style.display = 'none';
+}
+
+function closeDifficulty() {
+    difficultyModal.style.display = 'none';
+}
+
+function closeEmojiSelection() {
+    emojiSelectionModal.style.display = 'none';
+}
+
+leaveButton.addEventListener('click', () => {
+    isTwoPlayerMode = false;
+    gameContainer.style.display = 'block';
+    boardElement.style.display = 'none';
+
+    // Clear the reset timeout if leaving early
+    if (window.currentResetTimeout) {
+        clearTimeout(window.currentResetTimeout);
+        window.currentResetTimeout = null; // Clear reference
+    }
+
+    resetScores();
+    hideAllScoreboards();
+    showButtons();
+});
+
+function setBoardSize(size) {
+    boardSize = size;
+    closeSettings();
+}
+
+function showLoadingScreen() {
+    loadingScreen.style.display = 'flex';
+    setTimeout(() => loadingScreen.style.display = 'none', 2000);
+}
+
+function showButtons() {
+    document.querySelectorAll('.btn').forEach(button => button.style.display = 'inline-block');
+    leaveButton.style.display = 'none';
+}
+
+startGameButton.addEventListener('click', () => {
+    gameContainer.style.display = 'block';
+    startGameButton.style.display = 'none';
+});
+
+gameStartButton.addEventListener('click', () => {
+    hideButtonsExcept(['leave-button']);
+    boardElement.style.display = 'grid';
+    showScoreboard('single');
+    initBoard();
+});
+
+twoPlayerButton.addEventListener('click', () => {
+    hideButtonsExcept(['leave-button']);
+    isTwoPlayerMode = true;
+    currentPlayer = 'Player 1';
+    boardElement.style.display = 'grid';
+    showScoreboard('two-player');
+    initBoard();
+});
+
+emojiButton.addEventListener('click', () => emojiSelectionModal.style.display = 'block');
+settingsButton.addEventListener('click', () => settingsModal.style.display = 'block');
+difficultyButton.addEventListener('click', () => difficultyModal.style.display = 'block');
+
+function hideButtonsExcept(ids) {
+    document.querySelectorAll('.btn').forEach(button => {
+        button.style.display = ids.includes(button.id) ? 'inline-block' : 'none';
+    });
+}
+
+function showScoreboard(mode) {
+    hideAllScoreboards(); // Hide all scoreboards initially
+    // Only show the relevant scoreboard if the game board is visible
+    if (boardElement.style.display === 'grid') {
+        switch (mode) {
+            case 'single':
+                scoreboardSingle.style.display = 'block';
+                break;
+            case 'two-player':
+                scoreboardTwoPlayer.style.display = 'block';
+                break;
+            case 'easy':
+                scoreboardEasy.style.display = 'block';
+                break;
+            case 'normal':
+                scoreboardNormal.style.display = 'block';
+                break;
+            case 'hard':
+                scoreboardHard.style.display = 'block';
+                break;
+        }
+    }
+}
+
+function hideAllScoreboards() {
+    scoreboardSingle.style.display = 'none';
+    scoreboardTwoPlayer.style.display = 'none';
+    scoreboardEasy.style.display = 'none';
+    scoreboardNormal.style.display = 'none';
+    scoreboardHard.style.display = 'none';
+}
+
+function resetScores() {
+    playerScore = 0;
+    computerScore = 0;
+    player1Score = 0;
+    player2Score = 0;
+    easyPlayerScore = 0;
+    easyComputerScore = 0;
+    normalPlayerScore = 0;
+    normalComputerScore = 0;
+    hardPlayerScore = 0;
+    hardComputerScore = 0;
+    playerScoreElement.textContent = 0;
+    computerScoreElement.textContent = 0;
+    player1ScoreElement.textContent = 0;
+    player2ScoreElement.textContent = 0;
+    document.getElementById('easy-computer-score').textContent = 0;
+    document.getElementById('easy-player-score').textContent = 0;
+    document.getElementById('normal-computer-score').textContent = 0;
+    document.getElementById('normal-player-score').textContent = 0;
+    document.getElementById('hard-computer-score').textContent = 0;
+    document.getElementById('hard-player-score').textContent = 0;
+}
+
+showLoadingScreen();
+initBoard();
+
     </script>
 </body>
 
