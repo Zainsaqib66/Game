@@ -1,0 +1,586 @@
+const boardElement = document.getElementById('board');
+
+const settingsButton = document.getElementById('settings-button');
+const difficultyButton = document.getElementById('difficulty-button');
+const settingsModal = document.getElementById('settings');
+const difficultyModal = document.getElementById('difficulty');
+
+const loadingScreen = document.getElementById('loading-screen');
+const notification = document.getElementById('notification');
+const leaveButton = document.getElementById('leave-button');
+const gameContainer = document.getElementById('game-container');
+const startGameButton = document.getElementById('start-game-button');
+const gameStartButton = document.getElementById('game-start-button');
+const twoPlayerButton = document.getElementById('two-player-button');
+const hideMovesButton = document.createElement('button');
+const scoreboardSingle = document.getElementById('scoreboard-single');
+const scoreboardTwoPlayer = document.getElementById('scoreboard-two-player');
+const scoreboardEasy = document.getElementById('scoreboard-easy');
+const scoreboardNormal = document.getElementById('scoreboard-normal');
+const scoreboardHard = document.getElementById('scoreboard-hard');
+const playerScoreElement = document.getElementById('player-score');
+const computerScoreElement = document.getElementById('computer-score');
+const player1ScoreElement = document.getElementById('player1-score');
+const player2ScoreElement = document.getElementById('player2-score');
+
+// Sounds
+const winSound = new Audio('win.mp3.wav');
+const lossSound = new Audio('loss.mp3.wav');
+const drawSound = new Audio('draw.map.wav');
+const cellSound = new Audio('cell.mp3.wav');
+const buttonSound = new Audio('button.mp3.wav');
+const backgroundMusic = new Audio('sound.mp3.mp3');
+
+// Play background music in a loop
+backgroundMusic.loop = true;
+backgroundMusic.volume = 0.5; // Adjust volume if needed
+backgroundMusic.play();
+
+let boardSize = 3;
+let boardState = [];
+let currentPlayer = 'Player';
+let player1Design = 'x x-fire'; // Keep only the default design
+let player2Design = 'o'; // Player 2 design
+let playerDesign = player1Design; // Default design if no selection is made
+let computerDesign = 'o'; // Computer plays as O
+let difficulty = 'easy';
+let isTwoPlayerMode = false;
+let hidePlayerMoves = false; // Hide Moves feature flag
+let playerScore = 0;
+let computerScore = 0;
+let player1Score = 0;
+let player2Score = 0;
+let easyPlayerScore = 0;
+let easyComputerScore = 0;
+let normalPlayerScore = 0;
+let normalComputerScore = 0;
+let hardPlayerScore = 0;
+let hardComputerScore = 0;
+let isPlayerTurnAllowed = true; // Controls turn-taking
+
+// Function to play a sound
+function playSound(sound) {
+    sound.currentTime = 0; // Reset to start
+    sound.play();
+}
+
+// Initialize board
+function initBoard() {
+    boardElement.innerHTML = '';
+    boardElement.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
+    boardElement.style.gridTemplateRows = `repeat(${boardSize}, 1fr)`;
+    boardState = Array(boardSize * boardSize).fill('');
+    isPlayerTurnAllowed = true; // Ensure moves are allowed when initialized
+
+    boardState.forEach((_, index) => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.style.width = boardSize === 5 ? '50px' : '70px';
+        cell.style.height = boardSize === 5 ? '50px' : '70px';
+        cell.dataset.index = index;
+
+        // Attach event listeners correctly based on mode
+        cell.addEventListener('click', () => {
+            if (!isTwoPlayerMode) {
+                handleCellClick(index);
+            } else {
+                handleTwoPlayerClick(index);
+            }
+        });
+
+        boardElement.appendChild(cell);
+    });
+}
+
+// Handle player clicks on cells (single-player)
+function handleCellClick(index) {
+    if (!isPlayerTurnAllowed || boardState[index] || currentPlayer !== 'Player') {
+        return;
+    }
+
+    boardState[index] = playerDesign;
+    renderBoard();
+    playSound(cellSound); // Play cell click sound
+
+    const winningIndices = checkWin(playerDesign, getRequiredWinCount());
+    if (winningIndices) {
+        updateScore('single');
+        drawWinningLine(winningIndices);
+        playSound(winSound); // Play win sound
+        showNotification('You Win!');
+        setTimeout(() => resetGame(true), 2000);
+    } else if (!boardState.includes('')) {
+        playSound(drawSound); // Play draw sound
+        showNotification("It's a Tie!");
+        setTimeout(() => resetGame(true), 2000);
+    } else {
+        currentPlayer = 'Computer'; // Switch to computer's turn
+        isPlayerTurnAllowed = false; // Disable further player moves
+        setTimeout(() => computerMove(), 1000);
+    }
+}
+
+// Handle player clicks in two-player mode
+function handleTwoPlayerClick(index) {
+    if (!isPlayerTurnAllowed || boardState[index] !== '') {
+        return;
+    }
+
+    if (currentPlayer === 'Player 1') {
+        boardState[index] = player1Design;
+        renderBoard();
+        playSound(cellSound); // Play cell click sound
+        const winningIndices = checkWin(player1Design, getRequiredWinCount());
+        if (winningIndices) {
+            updateScore('two-player');
+            drawWinningLine(winningIndices);
+            playSound(winSound); // Play win sound
+            showNotification('Player 1 Wins!');
+            setTimeout(() => resetGame(true), 2000);
+        } else if (!boardState.includes('')) {
+            playSound(drawSound); // Play draw sound
+            showNotification("It's a Tie!");
+            setTimeout(() => resetGame(true), 2000);
+        } else {
+            currentPlayer = 'Player 2';
+        }
+    } else if (currentPlayer === 'Player 2') {
+        boardState[index] = player2Design;
+        renderBoard();
+        playSound(cellSound); // Play cell click sound
+        const winningIndices = checkWin(player2Design, getRequiredWinCount());
+        if (winningIndices) {
+            updateScore('two-player');
+            drawWinningLine(winningIndices);
+            playSound(winSound); // Play win sound
+            showNotification('Player 2 Wins!');
+            setTimeout(() => resetGame(true), 2000);
+        } else if (!boardState.includes('')) {
+            playSound(drawSound); // Play draw sound
+            showNotification("It's a Tie!");
+            setTimeout(() => resetGame(true), 2000);
+        } else {
+            currentPlayer = 'Player 1';
+        }
+    }
+}
+
+// Handle computer's move
+function computerMove() {
+    if (currentPlayer !== 'Computer') return;
+
+    let move;
+    try {
+        switch (difficulty) {
+            case 'easy':
+                move = Math.random() < 0.85 ? getPerfectMove() : getBestMove();
+                break;
+            case 'normal':
+                move = Math.random() < 0.95 ? getPerfectMove() : getBestMove();
+                break;
+            case 'hard':
+                move = getPerfectMove();
+                break;
+            default:
+                move = getBestMove();
+                break;
+        }
+
+        if (move !== undefined && move >= 0 && boardState[move] === '') {
+            boardState[move] = computerDesign;
+            renderBoard();
+            playSound(cellSound); // Play cell click sound
+
+            const winningIndices = checkWin(computerDesign, getRequiredWinCount());
+            if (winningIndices) {
+                updateScore('computer');
+                drawWinningLine(winningIndices);
+                playSound(lossSound); // Play loss sound
+                showNotification('Computer Wins!');
+                setTimeout(() => resetGame(true), 2000);
+            } else if (!boardState.includes('')) {
+                playSound(drawSound); // Play draw sound
+                showNotification("It's a Tie!");
+                setTimeout(() => resetGame(true), 2000);
+            } else {
+                currentPlayer = 'Player'; // Switch back to player's turn
+                isPlayerTurnAllowed = true;
+            }
+        } else {
+            console.error('Invalid move detected:', move);
+            currentPlayer = 'Player';
+            isPlayerTurnAllowed = true;
+        }
+    } catch (error) {
+        console.error('Error during computer move:', error);
+        currentPlayer = 'Player';
+        isPlayerTurnAllowed = true;
+    }
+}
+
+// Get perfect move using minimax algorithm
+function getPerfectMove() {
+    let bestScore = -Infinity;
+    let move;
+    const maxDepth = boardSize === 5 ? 3 : 4; // Limit depth to avoid freezing in 5x5
+
+    boardState.forEach((cell, index) => {
+        if (!cell) {
+            boardState[index] = computerDesign;
+            let score = minimax(boardState, 0, false, maxDepth, -Infinity, Infinity);
+            boardState[index] = '';
+            if (score > bestScore) {
+                bestScore = score;
+                move = index;
+            }
+        }
+    });
+    return move;
+}
+
+// Minimax algorithm with alpha-beta pruning
+function minimax(board, depth, isMaximizing, maxDepth, alpha, beta) {
+    const requiredWinCount = getRequiredWinCount();
+
+    if (checkWin(computerDesign, requiredWinCount)) return 10 - depth;
+    if (checkWin(playerDesign, requiredWinCount)) return depth - 10;
+    if (board.every(cell => cell) || depth >= maxDepth) return 0;
+
+    if (isMaximizing) {
+        let maxEval = -Infinity;
+        for (let i = 0; i < board.length; i++) {
+            if (!board[i]) {
+                board[i] = computerDesign;
+                let eval = minimax(board, depth + 1, false, maxDepth, alpha, beta);
+                board[i] = '';
+                maxEval = Math.max(maxEval, eval);
+                alpha = Math.max(alpha, eval);
+                if (beta <= alpha) break;
+            }
+        }
+        return maxEval;
+    } else {
+        let minEval = Infinity;
+        for (let i = 0; i < board.length; i++) {
+            if (!board[i]) {
+                board[i] = playerDesign;
+                let eval = minimax(board, depth + 1, true, maxDepth, alpha, beta);
+                board[i] = '';
+                minEval = Math.min(minEval, eval);
+                beta = Math.min(beta, eval);
+                if (beta <= alpha) break;
+            }
+        }
+        return minEval;
+    }
+}
+
+// Get the required number of clicks to win
+function getRequiredWinCount() {
+    return boardSize === 3 ? 3 : 4; // For 3x3, 3 clicks are required; for 4x4 and 5x5, 4 clicks are required.
+}
+
+// Check if there's a winning sequence
+function checkWin(design, requiredWinCount) {
+    const size = boardSize;
+    const winningIndices = [];
+
+    // Check rows
+    for (let row = 0; row < size; row++) {
+        let count = 0;
+        let indices = [];
+        for (let col = 0; col < size; col++) {
+            if (boardState[row * size + col] === design) {
+                count++;
+                indices.push(row * size + col);
+                if (count === requiredWinCount) return indices; // Return winning indices
+            } else {
+                count = 0;
+                indices = [];
+            }
+        }
+    }
+
+    // Check columns
+    for (let col = 0; col < size; col++) {
+        let count = 0;
+        let indices = [];
+        for (let row = 0; row < size; row++) {
+            if (boardState[row * size + col] === design) {
+                count++;
+                indices.push(row * size + col);
+                if (count === requiredWinCount) return indices;
+            } else {
+                count = 0;
+                indices = [];
+            }
+        }
+    }
+
+    // Check main diagonal lines (top-left to bottom-right)
+    for (let start = -size + requiredWinCount; start <= size - requiredWinCount; start++) {
+        let count = 0;
+        let indices = [];
+        for (let row = Math.max(0, start), col = Math.max(0, -start); row < size && col < size; row++, col++) {
+            if (boardState[row * size + col] === design) {
+                count++;
+                indices.push(row * size + col);
+                if (count === requiredWinCount) return indices;
+            } else {
+                count = 0;
+                indices = [];
+            }
+        }
+    }
+
+    // Check anti-diagonal lines (top-right to bottom-left)
+    for (let start = requiredWinCount - 1; start <= 2 * size - requiredWinCount; start++) {
+        let count = 0;
+        let indices = [];
+        for (let row = Math.max(0, start - size + 1), col = Math.min(size - 1, start); row < size && col >= 0; row++, col--) {
+            if (boardState[row * size + col] === design) {
+                count++;
+                indices.push(row * size + col);
+                if (count === requiredWinCount) return indices;
+            } else {
+                count = 0;
+                indices = [];
+            }
+        }
+    }
+
+    return false; // No winning sequence found
+}
+
+// Draw the winning line
+function drawWinningLine(indices) {
+    indices.forEach(index => {
+        const cell = boardElement.children[index];
+        if (cell) {
+            cell.style.backgroundColor = 'rgba(255, 215, 0, 0.8)'; // Highlight winning line
+        }
+    });
+}
+
+// Reset the game
+function resetGame(autoReset = false) {
+    boardState = Array(boardSize * boardSize).fill('');
+    currentPlayer = isTwoPlayerMode ? 'Player 1' : 'Player';
+    isPlayerTurnAllowed = true;
+    renderBoard();
+}
+
+// Start a new game
+function startNewGame(mode) {
+    hideButtonsExcept(['leave-button']);
+    isTwoPlayerMode = mode === 'two-player';
+    currentPlayer = isTwoPlayerMode ? 'Player 1' : 'Player';
+    boardElement.style.display = 'grid';
+    showScoreboard(isTwoPlayerMode ? 'two-player' : 'single');
+    initBoard();
+}
+
+// Render the game board
+function renderBoard() {
+    boardElement.querySelectorAll('.cell').forEach((cell, index) => {
+        cell.className = 'cell'; // Reset classes
+        if (boardState[index] === player1Design && (!hidePlayerMoves || currentPlayer !== 'Player')) {
+            cell.textContent = hidePlayerMoves ? '' : 'X'; // Only show moves when not hiding
+            const designClass = player1Design.split(' ')[1];
+            if (designClass) {
+                cell.classList.add(designClass);
+            }
+            cell.classList.add('x-animate'); // Animation for X placement
+        } else if (boardState[index] === player2Design || boardState[index] === computerDesign) {
+            cell.textContent = 'O';
+            cell.style.color = '#4fc3f7';
+            cell.style.fontWeight = 'bold';
+            cell.classList.add('o-animate'); // Animation for O placement
+        } else {
+            cell.textContent = '';
+        }
+    });
+}
+
+// Update the score
+function updateScore(mode) {
+    if (mode === 'single') {
+        playerScore++;
+        playerScoreElement.textContent = playerScore;
+    } else if (mode === 'two-player') {
+        if (currentPlayer === 'Player 1') {
+            player1Score++;
+            player1ScoreElement.textContent = player1Score;
+        } else {
+            player2Score++;
+            player2ScoreElement.textContent = player2Score;
+        }
+    } else if (mode === 'computer') {
+        if (difficulty === 'easy') {
+            easyComputerScore++;
+            document.getElementById('easy-computer-score').textContent = easyComputerScore;
+        } else if (difficulty === 'normal') {
+            normalComputerScore++;
+            document.getElementById('normal-computer-score').textContent = normalComputerScore;
+        } else if (difficulty === 'hard') {
+            hardComputerScore++;
+            document.getElementById('hard-computer-score').textContent = hardComputerScore;
+        }
+        computerScore++;
+        computerScoreElement.textContent = computerScore;
+    }
+}
+
+// Set the game difficulty
+function setDifficulty(level) {
+    difficulty = level;
+    closeDifficulty();
+}
+
+// Show notifications
+function showNotification(message, shouldReset = true) {
+    notification.textContent = message;
+    notification.style.display = 'block';
+    leaveButton.style.display = 'none';
+
+    if (shouldReset) {
+        const resetTimeout = setTimeout(() => {
+            notification.style.display = 'none';
+            resetGame(true);
+            leaveButton.style.display = 'inline-block';
+        }, 2000);
+        window.currentResetTimeout = resetTimeout;
+    } else {
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 2000);
+    }
+}
+
+// Close the settings modal
+function closeSettings() {
+    settingsModal.style.display = 'none';
+}
+
+// Close the difficulty modal
+function closeDifficulty() {
+    difficultyModal.style.display = 'none';
+}
+
+// Hide or show buttons
+function hideButtonsExcept(ids) {
+    document.querySelectorAll('.btn').forEach(button => {
+        button.style.display = ids.includes(button.id) ? 'inline-block' : 'none';
+    });
+}
+
+// Show the scoreboard based on mode
+function showScoreboard(mode) {
+    hideAllScoreboards();
+    if (boardElement.style.display === 'grid') {
+        switch (mode) {
+            case 'single':
+                scoreboardSingle.style.display = 'block';
+                break;
+            case 'two-player':
+                scoreboardTwoPlayer.style.display = 'block';
+                break;
+            case 'easy':
+                scoreboardEasy.style.display = 'block';
+                break;
+            case 'normal':
+                scoreboardNormal.style.display = 'block';
+                break;
+            case 'hard':
+                scoreboardHard.style.display = 'block';
+                break;
+        }
+    }
+}
+
+// Hide all scoreboards
+function hideAllScoreboards() {
+    scoreboardSingle.style.display = 'none';
+    scoreboardTwoPlayer.style.display = 'none';
+    scoreboardEasy.style.display = 'none';
+    scoreboardNormal.style.display = 'none';
+    scoreboardHard.style.display = 'none';
+}
+
+// Reset the scores
+function resetScores() {
+    playerScore = 0;
+    computerScore = 0;
+    player1Score = 0;
+    player2Score = 0;
+    easyPlayerScore = 0;
+    easyComputerScore = 0;
+    normalPlayerScore = 0;
+    normalComputerScore = 0;
+    hardPlayerScore = 0;
+    hardComputerScore = 0;
+    playerScoreElement.textContent = 0;
+    computerScoreElement.textContent = 0;
+    player1ScoreElement.textContent = 0;
+    player2ScoreElement.textContent = 0;
+    document.getElementById('easy-computer-score').textContent = 0;
+    document.getElementById('easy-player-score').textContent = 0;
+    document.getElementById('normal-computer-score').textContent = 0;
+    document.getElementById('normal-player-score').textContent = 0;
+    document.getElementById('hard-computer-score').textContent = 0;
+    document.getElementById('hard-player-score').textContent = 0;
+}
+
+// Start the game loading screen
+function showLoadingScreen() {
+    loadingScreen.style.display = 'flex';
+    setTimeout(() => loadingScreen.style.display = 'none', 2000);
+}
+
+// Play button click sound
+function playButtonSound() {
+    playSound(buttonSound);
+}
+
+// Start a new single-player game
+gameStartButton.addEventListener('click', () => {
+    playButtonSound();
+    startNewGame('single');
+});
+
+// Start a new two-player game
+twoPlayerButton.addEventListener('click', () => {
+    playButtonSound();
+    startNewGame('two-player');
+});
+
+// Set board size
+function setBoardSize(size) {
+    boardSize = size;
+    closeSettings();
+}
+
+// Start the game
+startGameButton.addEventListener('click', () => {
+    gameContainer.style.display = 'block';
+    startGameButton.style.display = 'none';
+});
+
+// Append the hide moves button
+hideMovesButton.classList.add('btn');
+hideMovesButton.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/invisible.png" alt="Hide Moves" class="icon">`;
+hideMovesButton.addEventListener('click', () => {
+    hidePlayerMoves = !hidePlayerMoves; // Toggle hide mode
+    hideMovesButton.classList.toggle('active', hidePlayerMoves);
+    const message = hidePlayerMoves ? "Hide Moves applied!" : "Hide Moves removed!";
+    showNotification(message, false);
+    renderBoard();
+});
+
+document.querySelector('header').appendChild(hideMovesButton);
+
+// Show loading screen
+showLoadingScreen();
+
+// Initialize the board on page load
+initBoard();
