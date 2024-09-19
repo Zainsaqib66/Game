@@ -337,9 +337,6 @@ h1{
     <div class="game-container" id="game-container">
         <header>
             <h1>Tic Tac Toe</h1>
-            
-            
-
             <button class="btn" id="settings-button"><img src="https://img.icons8.com/ios-filled/50/000000/settings.png"
                     alt="Settings" class="icon"></button>
             <button class="btn" id="difficulty-button"><img src="https://img.icons8.com/ios-filled/50/000000/robot.png"
@@ -409,8 +406,6 @@ h1{
             <button onclick="closeDifficulty()">Close</button>
         </div>
 
-
-
         <div class="notification" id="notification">Notification Message</div>
     </div>
 
@@ -418,6 +413,42 @@ h1{
     <button id="start-game-button">Start Game</button>
 
     <script>
+        // Sound files
+        const winSound = new Audio('win.mp3.wav');
+        const lossSound = new Audio('loss.mp3.wav');
+        const drawSound = new Audio('draw.mp3.wav');
+        const cellSound = new Audio('cell.mp3.wav');
+        const buttonSound = new Audio('button.mp3.wav');
+        const backgroundMusic = new Audio('background.mp3.wav');
+        backgroundMusic.loop = true;
+        let soundEnabled = true;
+    
+        // Sound toggle
+        const soundToggle = document.getElementById('sound-toggle');
+        soundToggle.addEventListener('change', () => {
+            soundEnabled = soundToggle.checked;
+            if (soundEnabled) {
+                backgroundMusic.play();
+            } else {
+                backgroundMusic.pause();
+            }
+        });
+    
+        // Function to play sound
+        function playSound(sound) {
+            if (soundEnabled) {
+                sound.play();
+            }
+        }
+    
+    
+// Play sound function
+function playSound(sound) {
+    if (soundEnabled) {
+        sound.play();
+    }
+}
+
 const boardElement = document.getElementById('board');
 
 const settingsButton = document.getElementById('settings-button');
@@ -480,6 +511,7 @@ function initBoard() {
 
         // Attach event listeners correctly based on mode
         cell.addEventListener('click', () => {
+            playSound(cellSound); // Play sound on cell click
             if (!isTwoPlayerMode) {
                 handleCellClick(index);
             } else {
@@ -492,7 +524,6 @@ function initBoard() {
 }
 
 function handleCellClick(index) {
-    // Allow only one move per turn
     if (!isPlayerTurnAllowed || boardState[index] || currentPlayer !== 'Player') {
         console.log('Move not allowed: Turn is blocked or invalid click detected.');
         return;
@@ -506,9 +537,11 @@ function handleCellClick(index) {
         updateScore('single');
         drawWinningLine(winningIndices);
         showNotification('You Win!');
+        playSound(winSound);
         setTimeout(() => resetGame(true), 2000);
     } else if (!boardState.includes('')) {
         showNotification("It's a Tie!");
+        playSound(drawSound);
         setTimeout(() => resetGame(true), 2000);
     } else {
         currentPlayer = 'Computer'; // Switch to computer's turn
@@ -518,13 +551,11 @@ function handleCellClick(index) {
 }
 
 function handleTwoPlayerClick(index) {
-    // Check if the move is allowed and the cell is empty
     if (!isPlayerTurnAllowed || boardState[index] !== '') {
         console.log('Move not allowed: Turn is blocked or invalid click detected.');
         return;
     }
 
-    // Player 1 move handling
     if (currentPlayer === 'Player 1') {
         boardState[index] = player1Design;
         renderBoard();
@@ -533,17 +564,16 @@ function handleTwoPlayerClick(index) {
             updateScore('two-player');
             drawWinningLine(winningIndices);
             showNotification('Player 1 Wins!');
+            playSound(winSound);
             setTimeout(() => resetGame(true), 2000);
         } else if (!boardState.includes('')) {
             showNotification("It's a Tie!");
+            playSound(drawSound);
             setTimeout(() => resetGame(true), 2000);
         } else {
-            // Switch to Player 2's turn
             currentPlayer = 'Player 2';
         }
-    }
-    // Player 2 move handling
-    else if (currentPlayer === 'Player 2') {
+    } else if (currentPlayer === 'Player 2') {
         boardState[index] = player2Design;
         renderBoard();
         const winningIndices = checkWin(player2Design, getRequiredWinCount());
@@ -551,12 +581,13 @@ function handleTwoPlayerClick(index) {
             updateScore('two-player');
             drawWinningLine(winningIndices);
             showNotification('Player 2 Wins!');
+            playSound(winSound);
             setTimeout(() => resetGame(true), 2000);
         } else if (!boardState.includes('')) {
             showNotification("It's a Tie!");
+            playSound(drawSound);
             setTimeout(() => resetGame(true), 2000);
         } else {
-            // Switch back to Player 1's turn
             currentPlayer = 'Player 1';
         }
     }
@@ -591,9 +622,11 @@ function computerMove() {
                 updateScore('computer');
                 drawWinningLine(winningIndices);
                 showNotification('Computer Wins!');
+                playSound(lossSound);
                 setTimeout(() => resetGame(true), 2000);
             } else if (!boardState.includes('')) {
                 showNotification("It's a Tie!");
+                playSound(drawSound);
                 setTimeout(() => resetGame(true), 2000);
             } else {
                 currentPlayer = 'Player'; // Switch back to player's turn
@@ -766,8 +799,6 @@ function startNewGame(mode) {
     initBoard();
 }
 
-
-
 function renderBoard() {
     boardElement.querySelectorAll('.cell').forEach((cell, index) => {
         cell.className = 'cell'; // Reset classes
@@ -864,19 +895,20 @@ leaveButton.addEventListener('click', () => {
     showButtons();
 });
 
-
 gameStartButton.addEventListener('click', () => {
     startNewGame('single'); // Start single player mode
+    playSound(buttonSound); // Button click sound
 });
 
 twoPlayerButton.addEventListener('click', () => {
     startNewGame('two-player'); // Start two player mode
+    playSound(buttonSound); // Button click sound
 });
-
 
 function setBoardSize(size) {
     boardSize = size;
     closeSettings();
+    playSound(buttonSound); // Play sound on board size change
 }
 
 function showLoadingScreen() {
@@ -892,26 +924,18 @@ function showButtons() {
 startGameButton.addEventListener('click', () => {
     gameContainer.style.display = 'block';
     startGameButton.style.display = 'none';
+    playSound(backgroundMusic); // Background music starts when the game begins
 });
 
-gameStartButton.addEventListener('click', () => {
-    hideButtonsExcept(['leave-button']);
-    boardElement.style.display = 'grid';
-    showScoreboard('single');
-    initBoard();
+settingsButton.addEventListener('click', () => {
+    settingsModal.style.display = 'block';
+    playSound(buttonSound); // Play sound on settings button click
 });
 
-twoPlayerButton.addEventListener('click', () => {
-    hideButtonsExcept(['leave-button']);
-    isTwoPlayerMode = true;
-    currentPlayer = 'Player 1';
-    boardElement.style.display = 'grid';
-    showScoreboard('two-player');
-    initBoard();
+difficultyButton.addEventListener('click', () => {
+    difficultyModal.style.display = 'block';
+    playSound(buttonSound); // Play sound on difficulty button click
 });
-
-settingsButton.addEventListener('click', () => settingsModal.style.display = 'block');
-difficultyButton.addEventListener('click', () => difficultyModal.style.display = 'block');
 
 hideMovesButton.classList.add('btn');
 hideMovesButton.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/invisible.png" alt="Hide Moves" class="icon">`;
@@ -920,6 +944,7 @@ hideMovesButton.addEventListener('click', () => {
     hideMovesButton.classList.toggle('active', hidePlayerMoves);
     const message = hidePlayerMoves ? "Hide Moves applied!" : "Hide Moves removed!";
     showNotification(message, false); // Display notification without resetting the game
+    playSound(buttonSound); // Play sound on hide moves button click
     renderBoard(); // Re-render the board to apply the changes
 });
 
@@ -987,7 +1012,6 @@ function resetScores() {
 
 showLoadingScreen();
 initBoard();
-
 
     </script>
 </body>
