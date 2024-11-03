@@ -28,7 +28,7 @@
             --dark-primary-gradient: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
         }
 
-        /* Color Schemes for Different Themes */
+        /* Existing Themes */
         .theme-default {
             --primary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --border-color: #f093fb;
@@ -65,23 +65,41 @@
             --cell-active-bg: rgba(179, 255, 209, 0.5);
         }
 
-        /* Additional Themes */
-        .theme-night {
-            --primary-gradient: linear-gradient(135deg, #000428 0%, #004e92 100%);
-            --border-color: #000428;
-            --button-bg: #000428;
-            --button-hover-bg: #004e92;
-            --cell-hover-bg: rgba(0, 64, 146, 0.7);
-            --cell-active-bg: rgba(0, 40, 72, 0.5);
+        /* New Themes Added Below */
+        .theme-sky {
+            --primary-gradient: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            --border-color: #89f7fe;
+            --button-bg: #89f7fe;
+            --button-hover-bg: #66a6ff;
+            --cell-hover-bg: rgba(136, 247, 254, 0.7);
+            --cell-active-bg: rgba(102, 166, 255, 0.5);
         }
 
-        .theme-spring {
-            --primary-gradient: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-            --border-color: #a1c4fd;
-            --button-bg: #a1c4fd;
-            --button-hover-bg: #c2e9fb;
-            --cell-hover-bg: rgba(194, 233, 251, 0.7);
-            --cell-active-bg: rgba(161, 196, 253, 0.5);
+        .theme-lavender {
+            --primary-gradient: linear-gradient(135deg, #c3cfe2 0%, #c3cfe2 100%);
+            --border-color: #c3cfe2;
+            --button-bg: #c3cfe2;
+            --button-hover-bg: #a3b1c6;
+            --cell-hover-bg: rgba(195, 207, 226, 0.7);
+            --cell-active-bg: rgba(163, 177, 198, 0.5);
+        }
+
+        .theme-peach {
+            --primary-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            --border-color: #ffecd2;
+            --button-bg: #ffecd2;
+            --button-hover-bg: #fcb69f;
+            --cell-hover-bg: rgba(255, 236, 210, 0.7);
+            --cell-active-bg: rgba(252, 182, 159, 0.5);
+        }
+
+        .theme-mint {
+            --primary-gradient: linear-gradient(135deg, #a1ffce 0%, #faffd1 100%);
+            --border-color: #a1ffce;
+            --button-bg: #a1ffce;
+            --button-hover-bg: #faffd1;
+            --cell-hover-bg: rgba(161, 255, 206, 0.7);
+            --cell-active-bg: rgba(250, 255, 209, 0.5);
         }
 
         /* Dark Mode Styles */
@@ -93,6 +111,71 @@
             --button-hover-bg: var(--dark-button-hover-bg);
             --border-color: var(--dark-border-color);
             --status-color: var(--dark-text-color);
+            /* Overriding additional variables for dark mode */
+            --cell-bg: rgba(70, 70, 70, 0.9);
+            --cell-hover-bg: rgba(100, 100, 100, 0.7);
+            --cell-active-bg: rgba(130, 130, 130, 0.5);
+        }
+
+        /* Adjustments for Each Theme in Dark Mode */
+        .dark-mode.theme-default {
+            --cell-bg: rgba(70, 70, 70, 0.9);
+            --cell-hover-bg: rgba(100, 100, 100, 0.7);
+            --cell-active-bg: rgba(130, 130, 130, 0.5);
+        }
+
+        .dark-mode.theme-ocean {
+            --cell-bg: rgba(60, 80, 100, 0.9);
+            --cell-hover-bg: rgba(80, 100, 120, 0.7);
+            --cell-active-bg: rgba(100, 120, 140, 0.5);
+        }
+
+        .dark-mode.theme-sunset {
+            --cell-bg: rgba(120, 80, 60, 0.9);
+            --cell-hover-bg: rgba(140, 100, 80, 0.7);
+            --cell-active-bg: rgba(160, 120, 100, 0.5);
+        }
+
+        .dark-mode.theme-forest {
+            --cell-bg: rgba(60, 100, 60, 0.9);
+            --cell-hover-bg: rgba(80, 120, 80, 0.7);
+            --cell-active-bg: rgba(100, 140, 100, 0.5);
+        }
+
+        .dark-mode.theme-night {
+            --cell-bg: rgba(30, 30, 30, 0.9);
+            --cell-hover-bg: rgba(50, 50, 50, 0.7);
+            --cell-active-bg: rgba(70, 70, 70, 0.5);
+        }
+
+        .dark-mode.theme-spring {
+            --cell-bg: rgba(80, 100, 80, 0.9);
+            --cell-hover-bg: rgba(100, 120, 100, 0.7);
+            --cell-active-bg: rgba(120, 140, 120, 0.5);
+        }
+
+        .dark-mode.theme-sky {
+            --cell-bg: rgba(70, 90, 110, 0.9);
+            --cell-hover-bg: rgba(90, 110, 130, 0.7);
+            --cell-active-bg: rgba(110, 130, 150, 0.5);
+        }
+
+        .dark-mode.theme-lavender {
+            --cell-bg: rgba(80, 80, 100, 0.9);
+            --cell-hover-bg: rgba(100, 100, 120, 0.7);
+            --cell-active-bg: rgba(120, 120, 140, 0.5);
+        }
+
+        .dark-mode.theme-peach {
+            --cell-bg: rgba(100, 80, 60, 0.9);
+            --cell-hover-bg: rgba(120, 100, 80, 0.7);
+            --cell-active-bg: rgba(140, 120, 100, 0.5);
+        }
+
+        .dark-mode.theme-mint {
+            --cell-bg: rgba(80, 100, 80, 0.9);
+            --cell-hover-bg: rgba(100, 120, 100, 0.7);
+            --cell-active-bg: rgba(120, 140, 120, 0.5);
         }
 
         * {
@@ -109,6 +192,61 @@
             background: var(--primary-gradient);
             font-family: 'Poppins', sans-serif;
             transition: background 0.5s ease-in-out;
+        }
+
+        /* Loading Screen Styles */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--container-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Above all other elements */
+        }
+
+        /* Loader Animation */
+        .loader {
+            display: flex;
+            gap: 15px;
+        }
+
+        .loader div {
+            width: 20px;
+            height: 20px;
+            background-color: var(--button-bg);
+            border-radius: 50%;
+            animation: bounce 1s infinite;
+        }
+
+        .loader div:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loader div:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* Fade Out Animation for Loading Screen */
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        .loading-screen.fade-out {
+            animation: fadeOut 1s forwards;
         }
 
         .container {
@@ -178,7 +316,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            background: var(--cell-bg);
             border: 1px solid var(--border-color);
             font-size: 1.5em; /* Increased font size for larger cells */
             font-weight: 600;
@@ -190,10 +328,11 @@
             overflow: hidden;
             width: 100%; /* Ensure cells fill the grid */
             aspect-ratio: 1 / 1; /* Make cells square */
+            color: var(--text-color);
         }
 
         .game-board div.hidden {
-            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            background: var(--cell-bg);
             color: transparent;
         }
 
@@ -558,8 +697,8 @@
         }
 
         @keyframes pop {
-            0% { transform: scale(0.5); }
-            100% { transform: scale(1); }
+            from { transform: scale(0.5); }
+            to { transform: scale(1); }
         }
 
         /* O Styles */
@@ -611,9 +750,35 @@
         .theme-spring .X {
             color: #c2e9fb;
         }
+
+        /* New Themes X Styles */
+        .theme-sky .X {
+            color: #66a6ff;
+        }
+
+        .theme-lavender .X {
+            color: #a1c4fd;
+        }
+
+        .theme-peach .X {
+            color: #fcb69f;
+        }
+
+        .theme-mint .X {
+            color: #a1ffce;
+        }
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loader">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
     <div class="container" id="game-container">
         <!-- Initial Menu -->
         <div id="initial-menu">
@@ -647,8 +812,12 @@
                         <div data-value="theme-ocean">Ocean</div>
                         <div data-value="theme-sunset">Sunset</div>
                         <div data-value="theme-forest">Forest</div>
-                        <div data-value="theme-night">Night</div>
-                        <div data-value="theme-spring">Spring</div>
+
+                        <!-- New Themes Added Below -->
+                        <div data-value="theme-sky">Sky</div>
+                        <div data-value="theme-lavender">Lavender</div>
+                        <div data-value="theme-peach">Peach</div>
+                        <div data-value="theme-mint">Mint</div>
                     </div>
                 </div>
             </div>
@@ -694,7 +863,7 @@
     <!-- Settings Modal -->
     <div id="settings-modal" class="settings-modal modal">
         <div class="modal-content">
-            <span class="close-notification" onclick="closeSettings()">&times;</span>
+            <span class="close-notification" onclick="closeSettings(event)">&times;</span>
             <h2>Settings</h2>
             <!-- Settings Options -->
             <div class="sound-toggle">
@@ -712,7 +881,7 @@
     <!-- Notification Modal -->
     <div id="notification-modal" class="modal">
         <div class="modal-content">
-            <span class="close-notification" onclick="closeNotification()">&times;</span>
+            <span class="close-notification" onclick="closeNotification(event)">&times;</span>
             <p id="notification-message"></p>
         </div>
     </div>
@@ -758,23 +927,54 @@
         let playerOName = 'Player O';
 
         // Theme Array
-        const themes = ['theme-default', 'theme-ocean', 'theme-sunset', 'theme-forest', 'theme-night', 'theme-spring'];
+        const themes = [
+            'theme-default',
+            'theme-ocean',
+            'theme-sunset',
+            'theme-forest',
+            'theme-night',
+            'theme-spring',
+            'theme-sky',       // New Theme 1
+            'theme-lavender',  // New Theme 2
+            'theme-peach',     // New Theme 3
+            'theme-mint'       // New Theme 4
+        ];
 
         // O Styles Array
         const oStyles = ['O-red', 'O-blue', 'O-green', 'O-purple', 'O-orange', 'O-pink'];
 
         // Initialize Custom Select Dropdown and Other Features
         document.addEventListener('DOMContentLoaded', () => {
-            initializeCustomSelect();
-            initializeSoundToggle();
-            initializeDarkMode();
-            loadPlayerNames();
-            loadScores();
-            loadSettings();
-            loadStatistics();
-            applySelectedTheme();
-            checkIfGameOpened();
-            window.addEventListener('resize', adjustCellSizes); // Adjust cells on window resize
+            const loadingScreen = document.getElementById('loading-screen');
+            const gameContainer = document.getElementById('game-container');
+
+            // Show the loading screen on initial load
+            loadingScreen.style.display = 'flex';
+            gameContainer.style.display = 'none'; // Hide the game interface initially
+
+            // After 4.5 seconds, hide the loading screen and show the game
+            setTimeout(() => {
+                // Add fade-out animation
+                loadingScreen.classList.add('fade-out');
+
+                // After fade-out animation ends, hide the loading screen and show the game
+                loadingScreen.addEventListener('animationend', () => {
+                    loadingScreen.style.display = 'none';
+                    gameContainer.style.display = 'flex';
+                });
+
+                // Proceed with existing initialization after hiding the loading screen
+                initializeCustomSelect();
+                initializeSoundToggle();
+                initializeDarkMode();
+                loadPlayerNames();
+                loadScores();
+                loadSettings();
+                loadStatistics();
+                applySelectedTheme();
+                checkIfGameOpened();
+                window.addEventListener('resize', adjustCellSizes); // Adjust cells on window resize
+            }, 4500); // 4.5 seconds
         });
 
         // Function to check if the game has been opened before
@@ -989,7 +1189,9 @@
                 // Apply theme setting
                 const themeSelect = document.querySelector('#theme-select .select-selected');
                 if (themeSelect) {
-                    themeSelect.innerHTML = `Select Theme (${capitalizeFirstLetter(selectedTheme.replace('theme-', ''))})`;
+                    let themeName = selectedTheme.replace('theme-', '');
+                    themeName = capitalizeFirstLetter(themeName);
+                    themeSelect.innerHTML = `Select Theme (${themeName})`;
                     themeSelect.setAttribute('data-value', selectedTheme);
                 }
             }
@@ -1446,6 +1648,8 @@
 
         // Minimax Algorithm with Alpha-Beta Pruning
         function minimax(boardState, depth, isMaximizing, alpha, beta) {
+           
+
             if (checkWinMinimax('O', boardState)) return 10 - depth;
             if (checkWinMinimax('X', boardState)) return depth - 10;
             if (isBoardFull(boardState)) return 0;
@@ -1659,7 +1863,8 @@
             playSound('click');
         }
 
-        function closeSettings() {
+        function closeSettings(event) {
+            event.stopPropagation(); // Prevent event bubbling
             document.getElementById('settings-modal').style.display = 'none';
             playSound('click');
         }
@@ -1672,7 +1877,8 @@
             notificationModal.style.display = 'flex'; // Ensure it's displayed as flex for centering
         }
 
-        function closeNotification() {
+        function closeNotification(event) {
+            event.stopPropagation(); // Prevent event bubbling
             const notificationModal = document.getElementById('notification-modal');
             notificationModal.style.display = 'none';
         }
@@ -1761,6 +1967,9 @@
                 setupGame();
             }, 3000);
         }
+
+        // Additional utility functions
+
 
         // Additional utility functions can be added here if needed
     </script>
