@@ -481,20 +481,9 @@
             outline: none;
         }
 
-        /* Sound Toggle */
-        .sound-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 15px;
-        }
+        /* Sound Toggle - Removed from Main Menu */
 
-        .sound-toggle label {
-            margin-left: 8px;
-            font-size: 1em;
-            color: var(--text-color);
-            user-select: none;
-        }
+        /* Dark Mode Toggle - Removed from Main Menu */
 
         /* Dark Mode Toggle */
         .dark-mode-toggle {
@@ -779,7 +768,7 @@
         </div>
     </div>
 
-    <div class="container" id="game-container">
+    <div class="container" id="game-container" style="display: none;"> <!-- Initially hidden -->
         <!-- Initial Menu -->
         <div id="initial-menu">
             <div class="menu-buttons">
@@ -826,16 +815,6 @@
                 <input type="text" id="playerX-name" placeholder="Player X Name" maxlength="12">
                 <input type="text" id="playerO-name" placeholder="Player O Name" maxlength="12">
             </div>
-            <!-- Sound Toggle -->
-            <div class="sound-toggle">
-                <input type="checkbox" id="sound-toggle-checkbox" checked>
-                <label for="sound-toggle-checkbox">Sound</label>
-            </div>
-            <!-- Dark Mode Toggle -->
-            <div class="dark-mode-toggle">
-                <input type="checkbox" id="dark-mode-checkbox">
-                <label for="dark-mode-checkbox">Dark Mode</label>
-            </div>
             <!-- Settings Button -->
             <button class="button" onclick="openSettings()">Settings</button>
         </div>
@@ -862,7 +841,7 @@
 
     <!-- Settings Modal -->
     <div id="settings-modal" class="settings-modal modal">
-        <div class="modal-content">
+        <div class="modal-content settings-content">
             <span class="close-notification" onclick="closeSettings(event)">&times;</span>
             <h2>Settings</h2>
             <!-- Settings Options -->
@@ -900,70 +879,71 @@
 
     <!-- JavaScript Code -->
     <script>
-        // Game State Variables
-        let currentPlayer = 'X';
-        let gameActive = true;
-        let board = [];
-        let gridSize = 4;
-        let winCondition = 4; // Updated default win condition
-        let moveHistory = [];
-        let scores = { 'X': 0, 'O': 0 };
-        let mode = 'player'; // 'player' or 'computer'
-        let hintUsed = false;
-        let undoUsed = false;
-        let soundEnabled = true;
-        let aiDifficulty = 'medium';
+   <!-- JavaScript Code -->
 
-        // Statistics
-        let statistics = {
-            totalGames: 0,
-            totalWins: 0,
-            totalLosses: 0,
-            totalDraws: 0
-        };
+    // Game State Variables
+    let currentPlayer = 'X';
+    let gameActive = true;
+    let board = [];
+    let gridSize = 4;
+    let winCondition = 4; // Updated default win condition
+    let moveHistory = [];
+    let scores = { 'X': 0, 'O': 0 };
+    let mode = 'player'; // 'player' or 'computer'
+    let hintUsed = false;
+    let undoUsed = false;
+    let soundEnabled = true;
+    let aiDifficulty = 'medium';
+    let selectedTheme = 'theme-default';
 
-        // Player Names
-        let playerXName = 'Player X';
-        let playerOName = 'Player O';
+    // Statistics
+    let statistics = {
+        totalGames: 0,
+        totalWins: 0,
+        totalLosses: 0,
+        totalDraws: 0
+    };
 
-        // Theme Array
-        const themes = [
-            'theme-default',
-            'theme-ocean',
-            'theme-sunset',
-            'theme-forest',
-            'theme-night',
-            'theme-spring',
-            'theme-sky',       // New Theme 1
-            'theme-lavender',  // New Theme 2
-            'theme-peach',     // New Theme 3
-            'theme-mint'       // New Theme 4
-        ];
+    // Player Names
+    let playerXName = 'Player X';
+    let playerOName = 'Player O';
 
-        // O Styles Array
-        const oStyles = ['O-red', 'O-blue', 'O-green', 'O-purple', 'O-orange', 'O-pink'];
+    // Theme Array
+    const themes = [
+        'theme-default',
+        'theme-ocean',
+        'theme-sunset',
+        'theme-forest',
+        'theme-night',
+        'theme-spring',
+        'theme-sky',       // New Theme 1
+        'theme-lavender',  // New Theme 2
+        'theme-peach',     // New Theme 3
+        'theme-mint'       // New Theme 4
+    ];
 
-        // Initialize Custom Select Dropdown and Other Features
-        document.addEventListener('DOMContentLoaded', () => {
-            const loadingScreen = document.getElementById('loading-screen');
-            const gameContainer = document.getElementById('game-container');
+    // O Styles Array
+    const oStyles = ['O-red', 'O-blue', 'O-green', 'O-purple', 'O-orange', 'O-pink'];
 
-            // Show the loading screen on initial load
-            loadingScreen.style.display = 'flex';
-            gameContainer.style.display = 'none'; // Hide the game interface initially
+    // Initialize Custom Select Dropdown and Other Features
+    document.addEventListener('DOMContentLoaded', () => {
+        const loadingScreen = document.getElementById('loading-screen');
+        const gameContainer = document.getElementById('game-container');
 
-            // After 4.5 seconds, hide the loading screen and show the game
-            setTimeout(() => {
-                // Add fade-out animation
-                loadingScreen.classList.add('fade-out');
+        // Show the loading screen on initial load
+        loadingScreen.style.display = 'flex';
+        gameContainer.style.display = 'none'; // Hide the game interface initially
 
-                // After fade-out animation ends, hide the loading screen and show the game
-                loadingScreen.addEventListener('animationend', () => {
-                    loadingScreen.style.display = 'none';
-                    gameContainer.style.display = 'flex';
-                });
+        // After 4.5 seconds, hide the loading screen and show notifications
+        setTimeout(() => {
+            // Add fade-out animation
+            loadingScreen.classList.add('fade-out');
 
-                // Proceed with existing initialization after hiding the loading screen
+            // After fade-out animation ends, hide the loading screen
+            loadingScreen.addEventListener('animationend', async () => {
+                loadingScreen.style.display = 'none';
+
+                // Proceed with existing initialization
                 initializeCustomSelect();
                 initializeSoundToggle();
                 initializeDarkMode();
@@ -972,390 +952,639 @@
                 loadSettings();
                 loadStatistics();
                 applySelectedTheme();
-                checkIfGameOpened();
                 window.addEventListener('resize', adjustCellSizes); // Adjust cells on window resize
-            }, 4500); // 4.5 seconds
-        });
 
-        // Function to check if the game has been opened before
-        function checkIfGameOpened() {
-            if (!localStorage.getItem('gameOpened')) {
-                // First time opening the game
-                localStorage.setItem('gameOpened', 'true');
-                showNotification('Welcome to Tic Tac Toe!');
-            } else {
-                // Game has been opened before
-                showNotification('Welcome back to Tic Tac Toe!');
-            }
+                // Show the notifications and then show the game container
+                await checkIfGameOpened();
+            });
+
+        }, 4500); // 4.5 seconds
+    });
+
+    // Function to check if the game has been opened before and show notifications
+    async function checkIfGameOpened() {
+        if (!localStorage.getItem('gameOpened')) {
+            // First time opening the game
+            localStorage.setItem('gameOpened', 'true');
+            await showNotification('Welcome to Tic Tac Toe!');
+        } else {
+            // Game has been opened before
+            await showNotification('Welcome back to Tic Tac Toe!');
         }
+        await showNotification('Ali and Zain have made this game.');
+        document.getElementById('game-container').style.display = 'flex'; // Show the game interface after notifications
+    }
 
-        // Initialize Custom Select Dropdown
-        function initializeCustomSelect() {
-            const selects = document.querySelectorAll('.custom-select');
-            selects.forEach(select => {
-                const selected = select.querySelector('.select-selected');
-                const optionsContainer = select.querySelector('.select-items');
-                const optionsList = optionsContainer.querySelectorAll('div');
+    // Initialize Custom Select Dropdown
+    function initializeCustomSelect() {
+        const selects = document.querySelectorAll('.custom-select');
+        selects.forEach(select => {
+            const selected = select.querySelector('.select-selected');
+            const optionsContainer = select.querySelector('.select-items');
+            const optionsList = optionsContainer.querySelectorAll('div');
 
-                selected.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    closeAllSelect(selected);
-                    optionsContainer.classList.toggle('select-hide');
-                    selected.classList.toggle('select-arrow-active');
+            selected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeAllSelect(selected);
+                optionsContainer.classList.toggle('select-hide');
+                selected.classList.toggle('select-arrow-active');
+                playSound('click');
+            });
+
+            optionsList.forEach(option => {
+                option.addEventListener('click', () => {
+                    selected.innerHTML = `${option.innerHTML}`;
+                    selected.setAttribute('data-value', option.getAttribute('data-value'));
+
+                    // Remove 'same-as-selected' class from all options
+                    optionsList.forEach(opt => opt.classList.remove('same-as-selected'));
+                    // Add 'same-as-selected' class to selected option
+                    option.classList.add('same-as-selected');
+
+                    optionsContainer.classList.add('select-hide');
+                    selected.classList.remove('select-arrow-active');
+
+                    // Handle selection changes
+                    if (select.id === 'board-size-select') {
+                        // If game is already active, restart the game with new grid size
+                        if (!document.getElementById('game-interface').classList.contains('hidden-element')) {
+                            setupGame();
+                        }
+                    } else if (select.id === 'ai-difficulty-select') {
+                        aiDifficulty = selected.getAttribute('data-value');
+                        saveSettings();
+                    } else if (select.id === 'theme-select') {
+                        selectedTheme = selected.getAttribute('data-value');
+                        applySelectedTheme();
+                        saveSettings();
+                    }
+
                     playSound('click');
                 });
-
-                optionsList.forEach(option => {
-                    option.addEventListener('click', () => {
-                        selected.innerHTML = `${option.innerHTML}`;
-                        selected.setAttribute('data-value', option.getAttribute('data-value'));
-
-                        // Remove 'same-as-selected' class from all options
-                        optionsList.forEach(opt => opt.classList.remove('same-as-selected'));
-                        // Add 'same-as-selected' class to selected option
-                        option.classList.add('same-as-selected');
-
-                        optionsContainer.classList.add('select-hide');
-                        selected.classList.remove('select-arrow-active');
-
-                        // Handle selection changes
-                        if (select.id === 'board-size-select') {
-                            // If game is already active, restart the game with new grid size
-                            if (!document.getElementById('game-interface').classList.contains('hidden-element')) {
-                                setupGame();
-                            }
-                        } else if (select.id === 'ai-difficulty-select') {
-                            aiDifficulty = selected.getAttribute('data-value');
-                            saveSettings();
-                        } else if (select.id === 'theme-select') {
-                            selectedTheme = selected.getAttribute('data-value');
-                            applySelectedTheme();
-                            saveSettings();
-                        }
-
-                        playSound('click');
-                    });
-                });
             });
+        });
 
-            // Close all select boxes if clicked outside
-            document.addEventListener('click', closeAllSelect);
-        }
+        // Close all select boxes if clicked outside
+        document.addEventListener('click', closeAllSelect);
+    }
 
-        function closeAllSelect(element) {
-            const selected = document.querySelectorAll('.select-selected');
-            const optionsContainers = document.querySelectorAll('.select-items');
+    function closeAllSelect(element) {
+        const selected = document.querySelectorAll('.select-selected');
+        const optionsContainers = document.querySelectorAll('.select-items');
 
-            selected.forEach(sel => {
-                if (sel !== element) {
-                    sel.classList.remove('select-arrow-active');
-                }
-            });
-
-            optionsContainers.forEach(container => {
-                if (!container.contains(element)) {
-                    container.classList.add('select-hide');
-                }
-            });
-        }
-
-        // Initialize Sound Toggle
-        function initializeSoundToggle() {
-            const soundToggle = document.getElementById('sound-toggle-checkbox');
-            const settingsSoundToggle = document.getElementById('settings-sound-toggle');
-            soundEnabled = soundToggle.checked;
-            soundToggle.addEventListener('change', function() {
-                soundEnabled = this.checked;
-                settingsSoundToggle.checked = this.checked;
-                saveSettings();
-                playSound('click');
-            });
-            settingsSoundToggle.addEventListener('change', function() {
-                soundEnabled = this.checked;
-                soundToggle.checked = this.checked;
-                saveSettings();
-                playSound('click');
-            });
-        }
-
-        // Initialize Dark Mode Toggle
-        function initializeDarkMode() {
-            const darkModeToggle = document.getElementById('dark-mode-checkbox');
-            const settingsDarkModeToggle = document.getElementById('settings-dark-mode-toggle');
-            if (localStorage.getItem('darkMode') === 'enabled') {
-                document.body.classList.add('dark-mode');
-                darkModeToggle.checked = true;
-                settingsDarkModeToggle.checked = true;
+        selected.forEach(sel => {
+            if (sel !== element) {
+                sel.classList.remove('select-arrow-active');
             }
+        });
 
-            darkModeToggle.addEventListener('change', function() {
-                if (this.checked) {
-                    document.body.classList.add('dark-mode');
-                    settingsDarkModeToggle.checked = true;
-                    localStorage.setItem('darkMode', 'enabled');
-                } else {
-                    document.body.classList.remove('dark-mode');
-                    settingsDarkModeToggle.checked = false;
-                    localStorage.setItem('darkMode', 'disabled');
-                }
-                applySelectedTheme();
-                playSound('click');
-            });
-
-            settingsDarkModeToggle.addEventListener('change', function() {
-                if (this.checked) {
-                    document.body.classList.add('dark-mode');
-                    darkModeToggle.checked = true;
-                    localStorage.setItem('darkMode', 'enabled');
-                } else {
-                    document.body.classList.remove('dark-mode');
-                    darkModeToggle.checked = false;
-                    localStorage.setItem('darkMode', 'disabled');
-                }
-                applySelectedTheme();
-                playSound('click');
-            });
-        }
-
-        // Load Player Names from Inputs
-        function loadPlayerNames() {
-            const playerXInput = document.getElementById('playerX-name');
-            const playerOInput = document.getElementById('playerO-name');
-
-            // Load saved names from localStorage
-            const savedPlayerX = localStorage.getItem('playerXName');
-            const savedPlayerO = localStorage.getItem('playerOName');
-            if (savedPlayerX) {
-                playerXInput.value = savedPlayerX;
-                playerXName = savedPlayerX;
+        optionsContainers.forEach(container => {
+            if (!container.contains(element)) {
+                container.classList.add('select-hide');
             }
-            if (savedPlayerO) {
-                playerOInput.value = savedPlayerO;
-                playerOName = savedPlayerO;
-            }
+        });
+    }
 
-            playerXInput.addEventListener('input', function() {
-                playerXName = this.value.trim() || 'Player X';
-                updateScoreboard();
-                savePlayerNames();
-            });
+    // Initialize Sound Toggle (Only Settings Modal)
+    function initializeSoundToggle() {
+        const settingsSoundToggle = document.getElementById('settings-sound-toggle');
+        if (!settingsSoundToggle) return; // Exit if settings sound toggle not found
 
-            playerOInput.addEventListener('input', function() {
-                playerOName = this.value.trim() || (mode === 'computer' ? 'Computer' : 'Player O');
-                updateScoreboard();
-                savePlayerNames();
-            });
-        }
+        soundEnabled = settingsSoundToggle.checked;
 
-        // Save Player Names to localStorage
-        function savePlayerNames() {
-            localStorage.setItem('playerXName', playerXName);
-            localStorage.setItem('playerOName', playerOName);
-        }
-
-        // Load Scores from localStorage
-        function loadScores() {
-            const savedScores = JSON.parse(localStorage.getItem('tttScores'));
-            if (savedScores) {
-                scores = savedScores;
-            }
-            updateScoreboard();
-        }
-
-        // Save Scores to localStorage
-        function saveScores() {
-            localStorage.setItem('tttScores', JSON.stringify(scores));
-        }
-
-        // Load Settings from localStorage
-        function loadSettings() {
-            const savedSettings = JSON.parse(localStorage.getItem('tttSettings'));
-            if (savedSettings) {
-                soundEnabled = savedSettings.soundEnabled;
-                aiDifficulty = savedSettings.aiDifficulty || 'medium';
-                selectedTheme = savedSettings.selectedTheme || 'theme-default';
-
-                // Apply sound setting
-                document.getElementById('sound-toggle-checkbox').checked = soundEnabled;
-                document.getElementById('settings-sound-toggle').checked = soundEnabled;
-
-                // Apply AI difficulty
-                const aiSelect = document.querySelector('#ai-difficulty-select .select-selected');
-                if (aiSelect) {
-                    aiSelect.innerHTML = `Select AI Difficulty (${capitalizeFirstLetter(aiDifficulty)})`;
-                    aiSelect.setAttribute('data-value', aiDifficulty);
-                }
-
-                // Apply theme setting
-                const themeSelect = document.querySelector('#theme-select .select-selected');
-                if (themeSelect) {
-                    let themeName = selectedTheme.replace('theme-', '');
-                    themeName = capitalizeFirstLetter(themeName);
-                    themeSelect.innerHTML = `Select Theme (${themeName})`;
-                    themeSelect.setAttribute('data-value', selectedTheme);
-                }
-            }
-        }
-
-        // Save Settings to localStorage
-        function saveSettings() {
-            const settings = {
-                soundEnabled: soundEnabled,
-                aiDifficulty: aiDifficulty,
-                selectedTheme: selectedTheme
-            };
-            localStorage.setItem('tttSettings', JSON.stringify(settings));
-        }
-
-        // Apply Selected Theme
-        let selectedTheme = 'theme-default';
-        function applySelectedTheme() {
-            const container = document.getElementById('game-container');
-            // Remove all theme classes
-            container.className = 'container';
-            themes.forEach(theme => container.classList.remove(theme));
-            // Add selected theme class
-            container.classList.add(selectedTheme);
-            // Add dark mode class if enabled
-            if (document.body.classList.contains('dark-mode')) {
-                container.classList.add('dark-mode');
-            }
-            document.body.style.background = getComputedStyle(container).getPropertyValue('--primary-gradient');
-        }
-
-        // Capitalize First Letter Utility Function
-        function capitalizeFirstLetter(string) {
-            return string.charAt(0).toUpperCase() + string.slice(1);
-        }
-
-        // Start Game Function
-        function startGame(selectedMode) {
-            mode = selectedMode;
-            document.getElementById('initial-menu').classList.add('hidden-element');
-            document.getElementById('game-interface').classList.remove('hidden-element');
-
-            // Show or hide buttons based on mode
-            if (mode === 'computer') {
-                document.getElementById('hint-button').classList.remove('hidden-element');
-                document.getElementById('undo-button').classList.remove('hidden-element');
-                document.getElementById('ai-difficulty-select').style.display = 'block';
-
-                // Enable buttons
-                document.getElementById('hint-button').disabled = false;
-                document.getElementById('undo-button').disabled = false;
-            } else {
-                // Show buttons but disable them
-                document.getElementById('hint-button').classList.remove('hidden-element');
-                document.getElementById('undo-button').classList.remove('hidden-element');
-                document.getElementById('ai-difficulty-select').style.display = 'none';
-
-                // Disable buttons
-                document.getElementById('hint-button').disabled = true;
-                document.getElementById('undo-button').disabled = true;
-            }
-
-            setupGame();
-            showNotification('Game Started!');
+        settingsSoundToggle.addEventListener('change', function() {
+            soundEnabled = this.checked;
+            saveSettings();
             playSound('click');
+        });
+    }
+
+    // Initialize Dark Mode Toggle (Only Settings Modal)
+    function initializeDarkMode() {
+        const settingsDarkModeToggle = document.getElementById('settings-dark-mode-toggle');
+        if (!settingsDarkModeToggle) return; // Exit if settings dark mode toggle not found
+
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            settingsDarkModeToggle.checked = true;
         }
 
-        // Setup Game Function
-        function setupGame() {
-            const gameBoard = document.getElementById('game-board');
-            const selectedGridSize = document.querySelector('#board-size-select .select-selected').getAttribute('data-value');
-            gridSize = parseInt(selectedGridSize) || 4;
-            winCondition = getWinCondition(gridSize);
-            currentPlayer = 'X';
-            gameActive = true;
-            board = Array(gridSize).fill(null).map(() => Array(gridSize).fill(null));
-            moveHistory = [];
-            hintUsed = false;
-            undoUsed = false;
-            playerOName = mode === 'computer' ? (playerOName || 'Computer') : (playerOName || 'Player O');
-            updateStatus();
-            updateScoreboard();
-            document.getElementById('hint-button').disabled = mode !== 'computer'; // Disabled in 2-player
-            document.getElementById('undo-button').disabled = mode !== 'computer'; // Disabled in 2-player
-
-            // Reset buttons to enabled state in Computer mode
-            if (mode === 'computer') {
-                document.getElementById('hint-button').disabled = false;
-                document.getElementById('undo-button').disabled = false;
-                // Remove any previous hints or undos
-            }
-
-            // Hide Hint and Undo buttons in 2 Players mode
-            if (mode === 'player') {
-                // Buttons are shown but disabled
-                document.getElementById('hint-button').disabled = true;
-                document.getElementById('undo-button').disabled = true;
-            }
-
-            document.getElementById('game-container').className = 'container ' + selectedTheme + (document.body.classList.contains('dark-mode') ? ' dark-mode' : '');
-            document.body.style.background = getComputedStyle(document.getElementById('game-container')).getPropertyValue('--primary-gradient');
-            gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-            gameBoard.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
-            gameBoard.innerHTML = '';
-
-            for (let i = 0; i < gridSize * gridSize; i++) {
-                const cell = document.createElement('div');
-                cell.addEventListener('click', handleCellClick);
-                cell.dataset.index = i;
-                gameBoard.appendChild(cell);
-            }
-
-            // Reset buttons visibility and state
-            resetButtons();
-        }
-
-        // Reset Buttons Function
-        function resetButtons() {
-            // In Computer mode, buttons are shown and can be used once
-            if (mode === 'computer') {
-                const hintButton = document.getElementById('hint-button');
-                const undoButton = document.getElementById('undo-button');
-
-                hintButton.disabled = false;
-                undoButton.disabled = false;
+        settingsDarkModeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'enabled');
             } else {
-                // In 2 Players mode, buttons are shown but disabled
-                document.getElementById('hint-button').disabled = true;
-                document.getElementById('undo-button').disabled = true;
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'disabled');
             }
+            applySelectedTheme();
+            playSound('click');
+        });
+    }
+
+    // Load Player Names from Inputs
+    function loadPlayerNames() {
+        const playerXInput = document.getElementById('playerX-name');
+        const playerOInput = document.getElementById('playerO-name');
+
+        // Load saved names from localStorage
+        const savedPlayerX = localStorage.getItem('playerXName');
+        const savedPlayerO = localStorage.getItem('playerOName');
+        if (savedPlayerX) {
+            playerXInput.value = savedPlayerX;
+            playerXName = savedPlayerX;
+        }
+        if (savedPlayerO) {
+            playerOInput.value = savedPlayerO;
+            playerOName = savedPlayerO;
         }
 
-        // Get Win Condition Based on Grid Size
-        function getWinCondition(size) {
-            if (size === 4 || size === 5) return 4;
-            if (size === 6) return 5;
-            if (size === 7) return 6;
-            return 3; // default for other sizes
+        playerXInput.addEventListener('input', function() {
+            playerXName = this.value.trim() || 'Player X';
+            updateScoreboard();
+            savePlayerNames();
+        });
+
+        playerOInput.addEventListener('input', function() {
+            playerOName = this.value.trim() || (mode === 'computer' ? 'Computer' : 'Player O');
+            updateScoreboard();
+            savePlayerNames();
+        });
+    }
+
+    // Save Player Names to localStorage
+    function savePlayerNames() {
+        localStorage.setItem('playerXName', playerXName);
+        localStorage.setItem('playerOName', playerOName);
+    }
+
+    // Load Scores from localStorage
+    function loadScores() {
+        const savedScores = JSON.parse(localStorage.getItem('tttScores'));
+        if (savedScores) {
+            scores = savedScores;
         }
+        updateScoreboard();
+    }
 
-        // Handle Cell Click
-        function handleCellClick(event) {
-            const cell = event.target;
-            const index = parseInt(cell.dataset.index);
-            const row = Math.floor(index / gridSize);
-            const col = index % gridSize;
+    // Save Scores to localStorage
+    function saveScores() {
+        localStorage.setItem('tttScores', JSON.stringify(scores));
+    }
 
-            if (board[row][col] !== null || !gameActive || (mode === 'computer' && currentPlayer === 'O')) {
-                return;
+    // Load Settings from localStorage
+    function loadSettings() {
+        const savedSettings = JSON.parse(localStorage.getItem('tttSettings'));
+        if (savedSettings) {
+            soundEnabled = savedSettings.soundEnabled;
+            aiDifficulty = savedSettings.aiDifficulty || 'medium';
+            selectedTheme = savedSettings.selectedTheme || 'theme-default';
+
+            // Apply sound setting
+            const settingsSoundToggle = document.getElementById('settings-sound-toggle');
+            if (settingsSoundToggle) {
+                settingsSoundToggle.checked = soundEnabled;
             }
 
-            makeMove(row, col, currentPlayer);
+            // Apply AI difficulty
+            const aiSelect = document.querySelector('#ai-difficulty-select .select-selected');
+            if (aiSelect) {
+                aiSelect.innerHTML = `Select AI Difficulty (${capitalizeFirstLetter(aiDifficulty)})`;
+                aiSelect.setAttribute('data-value', aiDifficulty);
+            }
 
-            if (checkWinner(row, col)) {
-                updateStatus(`${getPlayerName(currentPlayer)} wins!`);
+            // Apply theme setting
+            const themeSelect = document.querySelector('#theme-select .select-selected');
+            if (themeSelect) {
+                let themeName = selectedTheme.replace('theme-', '');
+                themeName = capitalizeFirstLetter(themeName);
+                themeSelect.innerHTML = `Select Theme (${themeName})`;
+                themeSelect.setAttribute('data-value', selectedTheme);
+            }
+        }
+    }
+
+    // Save Settings to localStorage
+    function saveSettings() {
+        const settings = {
+            soundEnabled: soundEnabled,
+            aiDifficulty: aiDifficulty,
+            selectedTheme: selectedTheme
+        };
+        localStorage.setItem('tttSettings', JSON.stringify(settings));
+    }
+
+    // Load Statistics from localStorage
+    function loadStatistics() {
+        const savedStatistics = JSON.parse(localStorage.getItem('tttStatistics'));
+        if (savedStatistics) {
+            statistics = savedStatistics;
+        }
+    }
+
+    // Save Statistics to localStorage
+    function saveStatistics() {
+        localStorage.setItem('tttStatistics', JSON.stringify(statistics));
+    }
+
+    // Apply Selected Theme
+    function applySelectedTheme() {
+        const container = document.getElementById('game-container');
+        // Remove all theme classes
+        container.className = 'container';
+        themes.forEach(theme => container.classList.remove(theme));
+        // Add selected theme class
+        container.classList.add(selectedTheme);
+        // Add dark mode class if enabled
+        if (document.body.classList.contains('dark-mode')) {
+            container.classList.add('dark-mode');
+        }
+        document.body.style.background = getComputedStyle(container).getPropertyValue('--primary-gradient');
+    }
+
+    // Capitalize First Letter Utility Function
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    // Start Game Function
+    function startGame(selectedMode) {
+        mode = selectedMode;
+        document.getElementById('initial-menu').classList.add('hidden-element');
+        document.getElementById('game-interface').classList.remove('hidden-element');
+
+        // Show or hide buttons based on mode
+        if (mode === 'computer') {
+            document.getElementById('hint-button').classList.remove('hidden-element');
+            document.getElementById('undo-button').classList.remove('hidden-element');
+            document.getElementById('ai-difficulty-select').style.display = 'block';
+
+            // Enable buttons
+            document.getElementById('hint-button').disabled = false;
+            document.getElementById('undo-button').disabled = false;
+        } else {
+            // Show buttons but disable them
+            document.getElementById('hint-button').classList.remove('hidden-element');
+            document.getElementById('undo-button').classList.remove('hidden-element');
+            document.getElementById('ai-difficulty-select').style.display = 'none';
+
+            // Disable buttons
+            document.getElementById('hint-button').disabled = true;
+            document.getElementById('undo-button').disabled = true;
+        }
+
+        setupGame();
+        showNotification('Game Started!');
+        playSound('click');
+    }
+
+    // Setup Game Function
+    function setupGame() {
+        const gameBoard = document.getElementById('game-board');
+        const selectedGridSize = document.querySelector('#board-size-select .select-selected').getAttribute('data-value');
+        gridSize = parseInt(selectedGridSize) || 4;
+        winCondition = getWinCondition(gridSize);
+        currentPlayer = 'X';
+        gameActive = true;
+        board = Array(gridSize).fill(null).map(() => Array(gridSize).fill(null));
+        moveHistory = [];
+        hintUsed = false;
+        undoUsed = false;
+        playerOName = mode === 'computer' ? (playerOName || 'Computer') : (playerOName || 'Player O');
+        updateStatus();
+        updateScoreboard();
+        document.getElementById('hint-button').disabled = mode !== 'computer'; // Disabled in 2-player
+        document.getElementById('undo-button').disabled = mode !== 'computer'; // Disabled in 2-player
+
+        // Reset buttons to enabled state in Computer mode
+        if (mode === 'computer') {
+            document.getElementById('hint-button').disabled = false;
+            document.getElementById('undo-button').disabled = false;
+            // Remove any previous hints or undos
+        }
+
+        // Hide Hint and Undo buttons in 2 Players mode
+        if (mode === 'player') {
+            // Buttons are shown but disabled
+            document.getElementById('hint-button').disabled = true;
+            document.getElementById('undo-button').disabled = true;
+        }
+
+        document.getElementById('game-container').className = 'container ' + selectedTheme + (document.body.classList.contains('dark-mode') ? ' dark-mode' : '');
+        document.body.style.background = getComputedStyle(document.getElementById('game-container')).getPropertyValue('--primary-gradient');
+        gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+        gameBoard.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+        gameBoard.innerHTML = '';
+
+        for (let i = 0; i < gridSize * gridSize; i++) {
+            const cell = document.createElement('div');
+            cell.addEventListener('click', handleCellClick);
+            cell.dataset.index = i;
+            gameBoard.appendChild(cell);
+        }
+
+        // Reset buttons visibility and state
+        resetButtons();
+    }
+
+    // Reset Buttons Function
+    function resetButtons() {
+        // In Computer mode, buttons are shown and can be used once
+        if (mode === 'computer') {
+            const hintButton = document.getElementById('hint-button');
+            const undoButton = document.getElementById('undo-button');
+
+            hintButton.disabled = false;
+            undoButton.disabled = false;
+        } else {
+            // In 2 Players mode, buttons are shown but disabled
+            document.getElementById('hint-button').disabled = true;
+            document.getElementById('undo-button').disabled = true;
+        }
+    }
+
+    // Get Win Condition Based on Grid Size
+    function getWinCondition(size) {
+        if (size === 4 || size === 5) return 4;
+        if (size === 6) return 5;
+        if (size === 7) return 6;
+        return 3; // default for other sizes
+    }
+
+    // Handle Cell Click
+    function handleCellClick(event) {
+        const cell = event.target;
+        const index = parseInt(cell.dataset.index);
+        const row = Math.floor(index / gridSize);
+        const col = index % gridSize;
+
+        if (board[row][col] !== null || !gameActive || (mode === 'computer' && currentPlayer === 'O')) {
+            return;
+        }
+
+        makeMove(row, col, currentPlayer);
+
+        if (checkWinner(row, col)) {
+            updateStatus(`${getPlayerName(currentPlayer)} wins!`);
+            gameActive = false;
+            scores[currentPlayer]++;
+            updateScoreboard();
+            updateStatistics(currentPlayer === 'X' ? 'win' : 'loss');
+            saveScores();
+            playSound('win');
+            triggerConfetti();
+            highlightWin();
+            handleGameEnd(`${getPlayerName(currentPlayer)} wins!`);
+            return;
+        }
+
+        if (isDraw()) {
+            updateStatus(`It's a draw!`);
+            gameActive = false;
+            updateStatistics('draw');
+            saveScores();
+            playSound('draw');
+            handleGameEnd(`It's a draw!`);
+            return;
+        }
+
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        updateStatus();
+
+        if (mode === 'computer' && currentPlayer === 'O') {
+            setTimeout(computerMove, 500); // Added delay for better UX
+        }
+    }
+
+    // Make Move Function
+    function makeMove(row, col, player, record = true) {
+        board[row][col] = player;
+        const index = row * gridSize + col;
+        const gameBoard = document.getElementById('game-board');
+        const cell = gameBoard.children[index];
+        cell.textContent = player;
+
+        // Remove any existing style classes for O
+        if (player === 'O') {
+            oStyles.forEach(style => cell.classList.remove(style));
+        }
+
+        // Add O style if player is O
+        if (player === 'O') {
+            const randomStyle = oStyles[Math.floor(Math.random() * oStyles.length)];
+            cell.classList.add(randomStyle);
+        }
+
+        cell.classList.add(player);
+        cell.classList.add('disabled');
+
+        if (record) {
+            moveHistory.push({ row, col, player });
+        }
+
+        playSound('move');
+    }
+
+    // Check Winner Function
+    function checkWinner(row, col) {
+        return (
+            checkDirection(row, col, 0, 1) || // Horizontal
+            checkDirection(row, col, 1, 0) || // Vertical
+            checkDirection(row, col, 1, 1) || // Diagonal down-right
+            checkDirection(row, col, 1, -1)   // Diagonal up-right
+        );
+    }
+
+    // Check Direction Function
+    function checkDirection(row, col, rowDir, colDir) {
+        let count = 1;
+        let winningCells = [[row, col]];
+
+        // Check in the positive direction
+        let r = row + rowDir;
+        let c = col + colDir;
+        while (r >= 0 && r < gridSize && c >= 0 && c < gridSize && board[r][c] === currentPlayer) {
+            count++;
+            winningCells.push([r, c]);
+            r += rowDir;
+            c += colDir;
+        }
+
+        // Check in the negative direction
+        r = row - rowDir;
+        c = col - colDir;
+        while (r >= 0 && r < gridSize && c >= 0 && c < gridSize && board[r][c] === currentPlayer) {
+            count++;
+            winningCells.push([r, c]);
+            r -= rowDir;
+            c -= colDir;
+        }
+
+        if (count >= winCondition) {
+            highlightCells(winningCells);
+            return true;
+        }
+        return false;
+    }
+
+    // Highlight Winning Cells
+    function highlightCells(cells) {
+        const gameBoard = document.getElementById('game-board');
+        cells.forEach(([row, col]) => {
+            const index = row * gridSize + col;
+            const cell = gameBoard.children[index];
+            cell.classList.add('highlight');
+            cell.classList.add('win-animation');
+        });
+    }
+
+    // Highlight Win Function
+    function highlightWin() {
+        const status = document.getElementById('status');
+        status.classList.add('win-animation');
+        setTimeout(() => {
+            status.classList.remove('win-animation');
+        }, 1000);
+    }
+
+    // Check Draw Function
+    function isDraw() {
+        for (let row of board) {
+            if (row.includes(null)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Update Status Function
+    function updateStatus(message) {
+        const status = document.getElementById('status');
+        if (message) {
+            status.textContent = message;
+        } else {
+            status.textContent = `${getPlayerName(currentPlayer)}'s turn`;
+        }
+    }
+
+    // Update Scoreboard Function
+    function updateScoreboard() {
+        const playerXScore = document.getElementById('playerX-score');
+        const playerOScore = document.getElementById('playerO-score');
+        playerXScore.textContent = `${getPlayerName('X')}: ${scores['X']}`;
+        playerOScore.textContent = `${getPlayerName('O')}: ${scores['O']}`;
+    }
+
+    // Get Player Name Function
+    function getPlayerName(player) {
+        if (mode === 'player') {
+            const name = player === 'X' ? document.getElementById('playerX-name').value.trim() : document.getElementById('playerO-name').value.trim();
+            return name || `Player ${player}`;
+        } else {
+            return player === 'X' ? (document.getElementById('playerX-name').value.trim() || 'You') : (document.getElementById('playerO-name').value.trim() || 'Computer');
+        }
+    }
+
+    // Undo Move Function
+    function undoMove() {
+        if (undoUsed || moveHistory.length === 0 || !gameActive) {
+            showNotification('Cannot undo move.');
+            return;
+        }
+
+        if (mode === 'computer') {
+            // Undo both player's and computer's last moves
+            undoLastMove(); // Undo computer's move
+            undoLastMove(); // Undo player's move
+        } else {
+            // Undo last move in 2-player mode
+            undoLastMove();
+        }
+
+        undoUsed = true;
+        if (mode === 'computer') {
+            document.getElementById('undo-button').disabled = true; // Disable after use
+        }
+        updateStatus();
+        playSound('click');
+    }
+
+    // Undo Last Move Helper Function
+    function undoLastMove() {
+        if (moveHistory.length === 0) {
+            return;
+        }
+
+        const lastMove = moveHistory.pop();
+        const { row, col, player } = lastMove;
+        board[row][col] = null;
+        const index = row * gridSize + col;
+        const gameBoard = document.getElementById('game-board');
+        const cell = gameBoard.children[index];
+        cell.textContent = '';
+        cell.classList.remove('X', 'O', 'disabled', 'highlight', 'win-animation');
+        // Remove O style classes
+        oStyles.forEach(style => cell.classList.remove(style));
+    }
+
+    // Show Hint Function
+    function showHint() {
+        if (hintUsed || !gameActive || mode !== 'computer' || currentPlayer !== 'X') {
+            return;
+        }
+
+        const bestMove = getBestMove();
+        if (!bestMove) return; // No moves available
+
+        const index = bestMove.row * gridSize + bestMove.col;
+        const gameBoard = document.getElementById('game-board');
+        const cell = gameBoard.children[index];
+
+        cell.style.boxShadow = '0 0 10px 5px yellow';
+        setTimeout(() => {
+            cell.style.boxShadow = '';
+        }, 2000);
+
+        hintUsed = true;
+        document.getElementById('hint-button').disabled = true; // Disable after use
+        updateStatus(`${getPlayerName('X')} received a hint!`);
+        playSound('click');
+    }
+
+    // Computer Move Function
+    function computerMove() {
+        if (!gameActive) return;
+
+        let move;
+
+        switch (aiDifficulty) {
+            case 'easy':
+                move = getRandomMove();
+                break;
+            case 'medium':
+                move = Math.random() < 0.5 ? getBestMove() : getRandomMove();
+                break;
+            case 'hard':
+                move = getBestMove();
+                break;
+            default:
+                move = getBestMove();
+        }
+
+        if (move) {
+            makeMove(move.row, move.col, 'O');
+
+            if (checkWinner(move.row, move.col)) {
+                updateStatus(`Computer wins!`);
                 gameActive = false;
-                scores[currentPlayer]++;
+                scores['O']++;
                 updateScoreboard();
-                updateStatistics(currentPlayer === 'X' ? 'win' : 'loss');
+                updateStatistics('loss');
                 saveScores();
                 playSound('win');
                 triggerConfetti();
                 highlightWin();
-                handleGameEnd(`${getPlayerName(currentPlayer)} wins!`);
+                handleGameEnd(`Computer wins!`);
                 return;
             }
 
@@ -1369,435 +1598,189 @@
                 return;
             }
 
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            currentPlayer = 'X';
             updateStatus();
-
-            if (mode === 'computer' && currentPlayer === 'O') {
-                setTimeout(computerMove, 500); // Added delay for better UX
-            }
         }
+    }
 
-        // Make Move Function
-        function makeMove(row, col, player, record = true) {
-            board[row][col] = player;
-            const index = row * gridSize + col;
-            const gameBoard = document.getElementById('game-board');
-            const cell = gameBoard.children[index];
-            cell.textContent = player;
+    // Get Best Move Function (Minimax Algorithm)
+    function getBestMove() {
+        let bestScore = -Infinity;
+        let move;
 
-            // Remove any existing style classes for O
-            if (player === 'O') {
-                oStyles.forEach(style => cell.classList.remove(style));
-            }
-
-            // Add O style if player is O
-            if (player === 'O') {
-                const randomStyle = oStyles[Math.floor(Math.random() * oStyles.length)];
-                cell.classList.add(randomStyle);
-            }
-
-            cell.classList.add(player);
-            cell.classList.add('disabled');
-
-            if (record) {
-                moveHistory.push({ row, col, player });
-            }
-
-            playSound('move');
-        }
-
-        // Check Winner Function
-        function checkWinner(row, col) {
-            return (
-                checkDirection(row, col, 0, 1) || // Horizontal
-                checkDirection(row, col, 1, 0) || // Vertical
-                checkDirection(row, col, 1, 1) || // Diagonal down-right
-                checkDirection(row, col, 1, -1)   // Diagonal up-right
-            );
-        }
-
-        // Check Direction Function
-        function checkDirection(row, col, rowDir, colDir) {
-            let count = 1;
-            let winningCells = [[row, col]];
-
-            // Check in the positive direction
-            let r = row + rowDir;
-            let c = col + colDir;
-            while (r >= 0 && r < gridSize && c >= 0 && c < gridSize && board[r][c] === currentPlayer) {
-                count++;
-                winningCells.push([r, c]);
-                r += rowDir;
-                c += colDir;
-            }
-
-            // Check in the negative direction
-            r = row - rowDir;
-            c = col - colDir;
-            while (r >= 0 && r < gridSize && c >= 0 && c < gridSize && board[r][c] === currentPlayer) {
-                count++;
-                winningCells.push([r, c]);
-                r -= rowDir;
-                c -= colDir;
-            }
-
-            if (count >= winCondition) {
-                highlightCells(winningCells);
-                return true;
-            }
-            return false;
-        }
-
-        // Highlight Winning Cells
-        function highlightCells(cells) {
-            const gameBoard = document.getElementById('game-board');
-            cells.forEach(([row, col]) => {
-                const index = row * gridSize + col;
-                const cell = gameBoard.children[index];
-                cell.classList.add('highlight');
-                cell.classList.add('win-animation');
-            });
-        }
-
-        // Highlight Win Function
-        function highlightWin() {
-            const status = document.getElementById('status');
-            status.classList.add('win-animation');
-            setTimeout(() => {
-                status.classList.remove('win-animation');
-            }, 1000);
-        }
-
-        // Check Draw Function
-        function isDraw() {
-            for (let row of board) {
-                if (row.includes(null)) {
-                    return false;
+        for (let row = 0; row < gridSize; row++) {
+            for (let col = 0; col < gridSize; col++) {
+                if (board[row][col] === null) {
+                    board[row][col] = 'O';
+                    let score = minimax(board, 0, false, -Infinity, Infinity);
+                    board[row][col] = null;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        move = { row, col };
+                    }
                 }
             }
-            return true;
         }
 
-        // Update Status Function
-        function updateStatus(message) {
-            const status = document.getElementById('status');
-            if (message) {
-                status.textContent = message;
-            } else {
-                status.textContent = `${getPlayerName(currentPlayer)}'s turn`;
-            }
-        }
+        return move;
+    }
 
-        // Update Scoreboard Function
-        function updateScoreboard() {
-            const playerXScore = document.getElementById('playerX-score');
-            const playerOScore = document.getElementById('playerO-score');
-            playerXScore.textContent = `${getPlayerName('X')}: ${scores['X']}`;
-            playerOScore.textContent = `${getPlayerName('O')}: ${scores['O']}`;
-        }
+    // Minimax Algorithm with Alpha-Beta Pruning
+    function minimax(boardState, depth, isMaximizing, alpha, beta) {
+        if (checkWinMinimax('O', boardState)) return 10 - depth;
+        if (checkWinMinimax('X', boardState)) return depth - 10;
+        if (isBoardFull(boardState)) return 0;
 
-        // Get Player Name Function
-        function getPlayerName(player) {
-            if (mode === 'player') {
-                const name = player === 'X' ? document.getElementById('playerX-name').value.trim() : document.getElementById('playerO-name').value.trim();
-                return name || `Player ${player}`;
-            } else {
-                return player === 'X' ? (document.getElementById('playerX-name').value.trim() || 'You') : (document.getElementById('playerO-name').value.trim() || 'Computer');
-            }
-        }
-
-        // Undo Move Function
-        function undoMove() {
-            if (undoUsed || moveHistory.length === 0 || !gameActive) {
-                showNotification('Cannot undo move.');
-                return;
-            }
-
-            if (mode === 'computer') {
-                // Undo both player's and computer's last moves
-                undoLastMove(); // Undo computer's move
-                undoLastMove(); // Undo player's move
-            } else {
-                // Undo last move in 2-player mode
-                undoLastMove();
-            }
-
-            undoUsed = true;
-            if (mode === 'computer') {
-                document.getElementById('undo-button').disabled = true; // Disable after use
-            }
-            updateStatus();
-            playSound('click');
-        }
-
-        // Undo Last Move Helper Function
-        function undoLastMove() {
-            if (moveHistory.length === 0) {
-                return;
-            }
-
-            const lastMove = moveHistory.pop();
-            const { row, col, player } = lastMove;
-            board[row][col] = null;
-            const index = row * gridSize + col;
-            const gameBoard = document.getElementById('game-board');
-            const cell = gameBoard.children[index];
-            cell.textContent = '';
-            cell.classList.remove('X', 'O', 'disabled', 'highlight', 'win-animation');
-            // Remove O style classes
-            oStyles.forEach(style => cell.classList.remove(style));
-        }
-
-        // Show Hint Function
-        function showHint() {
-            if (hintUsed || !gameActive || mode !== 'computer' || currentPlayer !== 'X') {
-                return;
-            }
-
-            const bestMove = getBestMove();
-            if (!bestMove) return; // No moves available
-
-            const index = bestMove.row * gridSize + bestMove.col;
-            const gameBoard = document.getElementById('game-board');
-            const cell = gameBoard.children[index];
-
-            cell.style.boxShadow = '0 0 10px 5px yellow';
-            setTimeout(() => {
-                cell.style.boxShadow = '';
-            }, 2000);
-
-            hintUsed = true;
-            document.getElementById('hint-button').disabled = true; // Disable after use
-            updateStatus(`${getPlayerName('X')} received a hint!`);
-            playSound('click');
-        }
-
-        // Computer Move Function
-        function computerMove() {
-            if (!gameActive) return;
-
-            let move;
-
+        // Limit depth to improve performance on larger grids
+        let MAX_DEPTH;
+        if (gridSize >= 5) {
             switch (aiDifficulty) {
                 case 'easy':
-                    move = getRandomMove();
+                    MAX_DEPTH = 1;
                     break;
                 case 'medium':
-                    move = Math.random() < 0.5 ? getBestMove() : getRandomMove();
+                    MAX_DEPTH = 2;
                     break;
                 case 'hard':
-                    move = getBestMove();
+                    MAX_DEPTH = 3;
                     break;
                 default:
-                    move = getBestMove();
+                    MAX_DEPTH = 2;
             }
-
-            if (move) {
-                makeMove(move.row, move.col, 'O');
-
-                if (checkWinner(move.row, move.col)) {
-                    updateStatus(`Computer wins!`);
-                    gameActive = false;
-                    scores['O']++;
-                    updateScoreboard();
-                    updateStatistics('loss');
-                    saveScores();
-                    playSound('win');
-                    triggerConfetti();
-                    highlightWin();
-                    handleGameEnd(`Computer wins!`);
-                    return;
-                }
-
-                if (isDraw()) {
-                    updateStatus(`It's a draw!`);
-                    gameActive = false;
-                    updateStatistics('draw');
-                    saveScores();
-                    playSound('draw');
-                    handleGameEnd(`It's a draw!`);
-                    return;
-                }
-
-                currentPlayer = 'X';
-                updateStatus();
+        } else {
+            switch (aiDifficulty) {
+                case 'easy':
+                    MAX_DEPTH = 1;
+                    break;
+                case 'medium':
+                    MAX_DEPTH = 3;
+                    break;
+                case 'hard':
+                    MAX_DEPTH = 5;
+                    break;
+                default:
+                    MAX_DEPTH = 3;
             }
         }
 
-        // Get Best Move Function (Minimax Algorithm)
-        function getBestMove() {
-            let bestScore = -Infinity;
-            let move;
+        if (depth >= MAX_DEPTH) {
+            return 0;
+        }
 
+        if (isMaximizing) {
+            let maxEval = -Infinity;
             for (let row = 0; row < gridSize; row++) {
                 for (let col = 0; col < gridSize; col++) {
-                    if (board[row][col] === null) {
-                        board[row][col] = 'O';
-                        let score = minimax(board, 0, false, -Infinity, Infinity);
-                        board[row][col] = null;
-                        if (score > bestScore) {
-                            bestScore = score;
-                            move = { row, col };
-                        }
+                    if (boardState[row][col] === null) {
+                        boardState[row][col] = 'O';
+                        let eval = minimax(boardState, depth + 1, false, alpha, beta);
+                        boardState[row][col] = null;
+                        maxEval = Math.max(maxEval, eval);
+                        alpha = Math.max(alpha, eval);
+                        if (beta <= alpha) break;
                     }
                 }
             }
-
-            return move;
-        }
-
-        // Minimax Algorithm with Alpha-Beta Pruning
-        function minimax(boardState, depth, isMaximizing, alpha, beta) {
-           
-
-            if (checkWinMinimax('O', boardState)) return 10 - depth;
-            if (checkWinMinimax('X', boardState)) return depth - 10;
-            if (isBoardFull(boardState)) return 0;
-
-            // Limit depth to improve performance on larger grids
-            let MAX_DEPTH;
-            if (gridSize >= 5) {
-                switch (aiDifficulty) {
-                    case 'easy':
-                        MAX_DEPTH = 1;
-                        break;
-                    case 'medium':
-                        MAX_DEPTH = 2;
-                        break;
-                    case 'hard':
-                        MAX_DEPTH = 3;
-                        break;
-                    default:
-                        MAX_DEPTH = 2;
-                }
-            } else {
-                switch (aiDifficulty) {
-                    case 'easy':
-                        MAX_DEPTH = 1;
-                        break;
-                    case 'medium':
-                        MAX_DEPTH = 3;
-                        break;
-                    case 'hard':
-                        MAX_DEPTH = 5;
-                        break;
-                    default:
-                        MAX_DEPTH = 3;
-                }
-            }
-
-            if (depth >= MAX_DEPTH) {
-                return 0;
-            }
-
-            if (isMaximizing) {
-                let maxEval = -Infinity;
-                for (let row = 0; row < gridSize; row++) {
-                    for (let col = 0; col < gridSize; col++) {
-                        if (boardState[row][col] === null) {
-                            boardState[row][col] = 'O';
-                            let eval = minimax(boardState, depth + 1, false, alpha, beta);
-                            boardState[row][col] = null;
-                            maxEval = Math.max(maxEval, eval);
-                            alpha = Math.max(alpha, eval);
-                            if (beta <= alpha) break;
-                        }
-                    }
-                }
-                return maxEval;
-            } else {
-                let minEval = Infinity;
-                for (let row = 0; row < gridSize; row++) {
-                    for (let col = 0; col < gridSize; col++) {
-                        if (boardState[row][col] === null) {
-                            boardState[row][col] = 'X';
-                            let eval = minimax(boardState, depth + 1, true, alpha, beta);
-                            boardState[row][col] = null;
-                            minEval = Math.min(minEval, eval);
-                            beta = Math.min(beta, eval);
-                            if (beta <= alpha) break;
-                        }
-                    }
-                }
-                return minEval;
-            }
-        }
-
-        // Check Win for Minimax
-        function checkWinMinimax(player, boardState) {
-            // Check rows, columns, and diagonals
+            return maxEval;
+        } else {
+            let minEval = Infinity;
             for (let row = 0; row < gridSize; row++) {
                 for (let col = 0; col < gridSize; col++) {
-                    if (
-                        (col <= gridSize - winCondition && checkLineMinimax(player, boardState, row, col, 0, 1)) ||
-                        (row <= gridSize - winCondition && checkLineMinimax(player, boardState, row, col, 1, 0)) ||
-                        (row <= gridSize - winCondition && col <= gridSize - winCondition && checkLineMinimax(player, boardState, row, col, 1, 1)) ||
-                        (row >= winCondition - 1 && col <= gridSize - winCondition && checkLineMinimax(player, boardState, row, col, -1, 1))
-                    ) {
-                        return true;
+                    if (boardState[row][col] === null) {
+                        boardState[row][col] = 'X';
+                        let eval = minimax(boardState, depth + 1, true, alpha, beta);
+                        boardState[row][col] = null;
+                        minEval = Math.min(minEval, eval);
+                        beta = Math.min(beta, eval);
+                        if (beta <= alpha) break;
                     }
                 }
             }
-            return false;
+            return minEval;
         }
+    }
 
-        // Check Line for Minimax
-        function checkLineMinimax(player, boardState, row, col, rowDir, colDir) {
-            for (let i = 0; i < winCondition; i++) {
-                if (boardState[row + i * rowDir] === undefined || boardState[row + i * rowDir][col + i * colDir] !== player) {
-                    return false;
+    // Check Win for Minimax
+    function checkWinMinimax(player, boardState) {
+        // Check rows, columns, and diagonals
+        for (let row = 0; row < gridSize; row++) {
+            for (let col = 0; col < gridSize; col++) {
+                if (
+                    (col <= gridSize - winCondition && checkLineMinimax(player, boardState, row, col, 0, 1)) || // Horizontal
+                    (row <= gridSize - winCondition && checkLineMinimax(player, boardState, row, col, 1, 0)) || // Vertical
+                    (row <= gridSize - winCondition && col <= gridSize - winCondition && checkLineMinimax(player, boardState, row, col, 1, 1)) || // Diagonal down-right
+                    (row <= gridSize - winCondition && col >= winCondition - 1 && checkLineMinimax(player, boardState, row, col, 1, -1)) // Diagonal up-right
+                ) {
+                    return true;
                 }
             }
-            return true;
         }
+        return false;
+    }
 
-        // Check if Board is Full
-        function isBoardFull(boardState) {
-            for (let row of boardState) {
-                if (row.includes(null)) {
-                    return false;
+    // Check Line for Minimax
+    function checkLineMinimax(player, boardState, row, col, rowDir, colDir) {
+        for (let i = 0; i < winCondition; i++) {
+            if (boardState[row + i * rowDir] === undefined || boardState[row + i * rowDir][col + i * colDir] !== player) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Check if Board is Full
+    function isBoardFull(boardState) {
+        for (let row of boardState) {
+            if (row.includes(null)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Get Random Move Function
+    function getRandomMove() {
+        let availableMoves = [];
+        for (let row = 0; row < gridSize; row++) {
+            for (let col = 0; col < gridSize; col++) {
+                if (board[row][col] === null) {
+                    availableMoves.push({ row, col });
                 }
             }
-            return true;
         }
+        return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    }
 
-        // Get Random Move Function
-        function getRandomMove() {
-            let availableMoves = [];
-            for (let row = 0; row < gridSize; row++) {
-                for (let col = 0; col < gridSize; col++) {
-                    if (board[row][col] === null) {
-                        availableMoves.push({ row, col });
-                    }
-                }
-            }
-            return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    // Play Sound Function
+    function playSound(type) {
+        if (!soundEnabled) return;
+        const soundMap = {
+            'move': 'move-sound',
+            'win': 'win-sound',
+            'draw': 'draw-sound',
+            'click': 'click-sound'
+        };
+        const sound = document.getElementById(soundMap[type]);
+        if (sound) {
+            sound.currentTime = 0;
+            sound.play();
         }
+    }
 
-        // Play Sound Function
-        function playSound(type) {
-            if (!soundEnabled) return;
-            let sound = document.getElementById(`${type}-sound`);
-            if (sound) {
-                sound.currentTime = 0;
-                sound.play();
-            }
-        }
+    // Trigger Confetti Function
+    function triggerConfetti() {
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+    }
 
-        // Trigger Confetti Function
-        function triggerConfetti() {
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-        }
-
-        // Exit Game Functionality
-        function exitGame() {
-            // Replace alert with custom confirm modal
-            const confirmExit = confirmModal('Do you want to leave the game?');
-            confirmExit.then(result => {
+    // Exit Game Function
+    function exitGame() {
+        // Replace alert with custom confirm modal
+        confirmModal('Do you want to leave the game?')
+            .then(result => {
                 if (result) {
                     // Reset scores
                     resetScores();
@@ -1835,143 +1818,130 @@
                 }
                 // If no, do nothing and stay in the game
             });
-        }
+    }
 
-        // Function to reset scores (if stored in localStorage or other storage)
-        function resetScores() {
-            scores = { 'X': 0, 'O': 0 };
-            saveScores();
-        }
+    // Function to reset scores (if stored in localStorage or other storage)
+    function resetScores() {
+        scores = { 'X': 0, 'O': 0 };
+        saveScores();
+    }
 
-        // Function to reset statistics (optional)
-        function resetStatistics() {
-            statistics = { totalGames: 0, totalWins: 0, totalLosses: 0, totalDraws: 0 };
-            saveStatistics();
-        }
+    // Function to reset statistics (optional)
+    function resetStatistics() {
+        statistics = { totalGames: 0, totalWins: 0, totalLosses: 0, totalDraws: 0 };
+        saveStatistics();
+    }
 
-        // Reset Scoreboard Display
-        function resetScoreboard() {
-            const playerXScore = document.getElementById('playerX-score');
-            const playerOScore = document.getElementById('playerO-score');
-            playerXScore.textContent = `${getPlayerName('X')}: 0`;
-            playerOScore.textContent = `${getPlayerName('O')}: 0`;
-        }
+    // Reset Scoreboard Display
+    function resetScoreboard() {
+        const playerXScore = document.getElementById('playerX-score');
+        const playerOScore = document.getElementById('playerO-score');
+        playerXScore.textContent = `${getPlayerName('X')}: 0`;
+        playerOScore.textContent = `${getPlayerName('O')}: 0`;
+    }
 
-        // Settings Modal Functions
-        function openSettings() {
-            document.getElementById('settings-modal').style.display = 'flex';
-            playSound('click');
-        }
+    // Settings Modal Functions
+    function openSettings() {
+        document.getElementById('settings-modal').style.display = 'flex';
+        playSound('click');
+    }
 
-        function closeSettings(event) {
-            event.stopPropagation(); // Prevent event bubbling
-            document.getElementById('settings-modal').style.display = 'none';
-            playSound('click');
-        }
+    function closeSettings(event) {
+        event.stopPropagation(); // Prevent event bubbling
+        document.getElementById('settings-modal').style.display = 'none';
+        playSound('click');
+    }
 
-        // Notification Modal Functions
-        function showNotification(message) {
+    // Notification Modal Functions
+    function showNotification(message) {
+        return new Promise((resolve) => {
             const notificationModal = document.getElementById('notification-modal');
             const notificationMessage = document.getElementById('notification-message');
             notificationMessage.textContent = message;
             notificationModal.style.display = 'flex'; // Ensure it's displayed as flex for centering
-        }
 
-        function closeNotification(event) {
-            event.stopPropagation(); // Prevent event bubbling
-            const notificationModal = document.getElementById('notification-modal');
-            notificationModal.style.display = 'none';
-        }
+            // Close the notification after a timeout
+            setTimeout(() => {
+                closeNotification();
+                resolve();
+            }, 3000); // 3 seconds
+        });
+    }
 
-        // Replace confirm with custom modal
-        function confirmModal(message) {
-            return new Promise((resolve) => {
-                // Create a custom confirm modal
-                const confirmModal = document.createElement('div');
-                confirmModal.classList.add('modal');
-                confirmModal.innerHTML = `
-                    <div class="modal-content">
-                        <p>${message}</p>
-                        <button class="button" id="confirm-yes">Yes</button>
-                        <button class="button" id="confirm-no">No</button>
-                    </div>
-                `;
-                document.body.appendChild(confirmModal);
+    function closeNotification(event) {
+        if (event) event.stopPropagation(); // Prevent event bubbling
+        const notificationModal = document.getElementById('notification-modal');
+        notificationModal.style.display = 'none';
+    }
 
-                // Style the confirm buttons
-                const confirmYes = confirmModal.querySelector('#confirm-yes');
-                const confirmNo = confirmModal.querySelector('#confirm-no');
+    // Replace confirm with custom modal
+    function confirmModal(message) {
+        return new Promise((resolve) => {
+            // Create a custom confirm modal
+            const confirmModal = document.createElement('div');
+            confirmModal.classList.add('modal');
+            confirmModal.innerHTML = `
+                <div class="modal-content">
+                    <p>${message}</p>
+                    <button class="button" id="confirm-yes">Yes</button>
+                    <button class="button" id="confirm-no">No</button>
+                </div>
+            `;
+            document.body.appendChild(confirmModal);
 
-                confirmYes.addEventListener('click', () => {
-                    resolve(true);
-                    confirmModal.remove();
-                });
+            // Style the confirm buttons
+            const confirmYes = confirmModal.querySelector('#confirm-yes');
+            const confirmNo = confirmModal.querySelector('#confirm-no');
 
-                confirmNo.addEventListener('click', () => {
+            confirmYes.addEventListener('click', () => {
+                resolve(true);
+                confirmModal.remove();
+            });
+
+            confirmNo.addEventListener('click', () => {
+                resolve(false);
+                confirmModal.remove();
+            });
+
+            // Close modal if clicked outside
+            confirmModal.addEventListener('click', (event) => {
+                if (event.target === confirmModal) {
                     resolve(false);
                     confirmModal.remove();
-                });
-
-                // Close modal if clicked outside
-                confirmModal.addEventListener('click', (event) => {
-                    if (event.target === confirmModal) {
-                        resolve(false);
-                        confirmModal.remove();
-                    }
-                });
+                }
             });
+        });
+    }
+
+    // Statistics Functions
+    function updateStatistics(result) {
+        statistics.totalGames++;
+        if (result === 'win') {
+            statistics.totalWins++;
+        } else if (result === 'loss') {
+            statistics.totalLosses++;
+        } else if (result === 'draw') {
+            statistics.totalDraws++;
         }
+        saveStatistics();
+        // Optionally, update a statistics display in the UI
+    }
 
-        // Statistics Functions
-        function updateStatistics(result) {
-            statistics.totalGames++;
-            if (result === 'win') {
-                statistics.totalWins++;
-            } else if (result === 'loss') {
-                statistics.totalLosses++;
-            } else if (result === 'draw') {
-                statistics.totalDraws++;
-            }
-            saveStatistics();
-            // Optionally, update a statistics display in the UI
-        }
+    // Handle Game End to Remove Timer (Previously handled by timer functions)
+    function handleGameEnd(result) {
+        // Since timer is removed, no need to clearInterval or handle timeout
+        showNotification(result).then(() => {
+            setupGame();
+        });
+    }
 
-        function loadStatistics() {
-            const storedStatistics = JSON.parse(localStorage.getItem('tttStatistics'));
-            if (storedStatistics) {
-                statistics = storedStatistics;
-            }
-        }
-
-        function saveStatistics() {
-            localStorage.setItem('tttStatistics', JSON.stringify(statistics));
-        }
-
-        // Save and Load Game Functions - Removed
-        // Removed all saveGame() and loadGame() related code
-
-        // Start the game automatically if there is a saved game - Removed
-        // Since Save and Load Game features are removed
-
-        /* 
-            Removed Timer Functionality:
-            - Removed the timer variables, functions, and related code.
-            - Ensured that the game operates without any time constraints.
-        */
-
-        // Handle Game End to Remove Timer (Previously handled by timer functions)
-        function handleGameEnd(result) {
-            // Since timer is removed, no need to clearInterval or handle timeout
-            showNotification(result);
-            setTimeout(() => {
-                setupGame();
-            }, 3000);
-        }
-
-        // Additional utility functions
+    // Function to adjust cell sizes based on window size (optional)
+    function adjustCellSizes() {
+        // Implement any responsive adjustments if needed
+        // Currently, cells are responsive via CSS
+    }
 
 
-        // Additional utility functions can be added here if needed
-    </script>
-</body>
+                    </script>
+                </body>
 </html>
