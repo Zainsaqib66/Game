@@ -976,16 +976,17 @@
     // Function to check if the game has been opened before and show notifications
     async function checkIfGameOpened() {
         if (!localStorage.getItem('gameOpened')) {
-            // First time opening the game
-            localStorage.setItem('gameOpened', 'true');
-            await showNotification('Welcome to Tic Tac Toe!');
-        } else {
-            // Game has been opened before
-            await showNotification('Welcome back to Tic Tac Toe!');
-        }
-        await showNotification('Ali and Zain have made this game.');
-        document.getElementById('game-container').style.display = 'flex'; // Show the game interface after notifications
-    }
+     // First time opening the game
+localStorage.setItem('gameOpened', 'true');
+await showNotification('Welcome to Tic Tac Toe!');
+} else {
+    // Game has been opened before
+    await showNotification('Welcome back to Tic Tac Toe!');
+}
+
+document.getElementById('game-container').style.display = 'flex'; // Show the game interface after notifications
+}
+
 
     // Initialize Custom Select Dropdown
     function initializeCustomSelect() {
