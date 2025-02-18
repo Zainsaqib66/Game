@@ -1307,7 +1307,7 @@ body.dark-mode .name-modal .confirm-button {
       if (difficulty === 'easy') return 1;
       if (difficulty === 'medium') { if (size <= 4) return 2; return 1; }
       if (difficulty === 'hard') {
-        if (size <= 4) return size * size;
+        if (size === 4) return 3;
         if (size === 5) return 3;
         if (size === 6) return 2;
         if (size === 7) return 2;
@@ -1400,7 +1400,7 @@ body.dark-mode .name-modal .confirm-button {
         const notificationModal = document.getElementById('notification-modal');
         document.getElementById('notification-message').textContent = message;
         notificationModal.style.display = 'flex';
-        setTimeout(() => { closeNotification(); resolve(); }, 5000);
+        setTimeout(() => { closeNotification(); resolve(); }, 2000);
       });
     }
     function closeNotification(event) {
